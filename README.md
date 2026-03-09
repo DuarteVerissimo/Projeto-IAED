@@ -13,6 +13,7 @@ r	resumo de facturação e existências
 f	factura os produtos no cesto
 d	apaga o registo de produtos ou facturas
 c	lista as facturas de um cliente
+
 2. Especificação do problema
 O objectivo do projecto é ter um sistema de facturação de produtos. Para tal são introduzidos no sistema um conjunto de produtos. O sistema gere o registo da facturação dos produtos aos clientes.
 
