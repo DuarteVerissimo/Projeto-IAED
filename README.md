@@ -17,7 +17,7 @@ c	lista as facturas de um cliente
 2. Especificação do problema
 O objectivo do projecto é ter um sistema de facturação de produtos. Para tal são introduzidos no sistema um conjunto de produtos. O sistema gere o registo da facturação dos produtos aos clientes.
 
-barcodes barcodes
+
 Cada produto é caracterizado por uma descrição, um código EAN-13 (ou EAN-8), um preço, uma classe de IVA (uma letra maiúscula) e a quantidade de unidades em existência. Se já houver produtos em armazém com o mesmo código EAN, as suas existências devem ser incrementadas na quantidade indicada e os restante valores actualizados. A designação do código EAN, EAN-8 ou EAN-13, é constituída por 8 ou 13 digitos decimais, devendo ser único no sistema. Os códigos EAN-13 são um número de 12 digitos seguido de um dígito de verificação calculado a partir dos anteriores: somar os dígitos nas posições pares (0, 2, 4, …) com os dígitos nas posições ímpares (1, 3, 5, …) multiplicados por 3 (apenas os ímpares); o dígito de verificação resultante é (10 - (soma % 10)) % 10 e deve ser igual ao último dígito do código EAN-13. De forma similar para o código EAN-8 usando respectivamente os digitos 0, 2, 4 e 6 e os digitos 1, 3 e 5 para o cálculo do digito de verificação. A descrição de um produto começa com uma letra maiúscula e tem um comprimento máximo de 50 bytes. Notar que um carácter acentuado em utf-8 utiliza mais de um byte. Por exemplo Açúcar tem 6 letras mas ocupa 8 bytes (char em C).
 
 Uma factura é apenas o resumo dos items comprados e da informação do cliente, sendo caracterizada por uma quantidade de produtos e respetivo valor total a facturar, além do NIF e nome do cliente que adquire os produtos. Os produtos e respetivas quantidades vão sendo adicionados a um cesto de compras sendo criada uma factura quando o conteúdo do cesto é pago. O nome do cliente pode conter caracteres brancos (espaços ou tabulador horizontal \t). Neste caso, o nome do cliente é representado entre aspas. Caso não contenha caracteres brancos, o nome do cliente pode ser delimitado por aspas ou não. O nome do cliente nunca contém o carácter aspa na sua descrição e começa sempre por uma letra (maiúscula ou minúscula). O nome do cliente não tem comprimento máximo mas na maioria dos casos não excede 50 bytes. Todos os valores monetários são impressos com duas casas decimais. O NIF é um número inteiro com 9 digitos decimais.
@@ -38,6 +38,7 @@ Se o comando puder gerar mais de um erro, deverá ser indicado apenas o primeiro
 q - termina o programa:
 Formato de entrada: q
 Formato de saída: NADA
+
 p - introduz no sistema ou actualiza um novo produto:
 Formato de entrada: p <ean> <iva> <preço> <quantidade> <descrição>
 Formato de saída: <stock>, quantidade de produto resultante.
@@ -49,6 +50,7 @@ invalid quantity no caso de a quantidade ser um número negativo.
 invalid description no caso de a descrição exceder a dimensão máxima.
 product in use no caso de se tentar alterar o preço de um produto que esteja incluído no cesto.
 invalid product no caso de o número indicado exceder o número de produtos registáveis
+
 l - lista produtos:
 Formato de entrada: l [ <wildcard> { <wildcard> } ]
 
