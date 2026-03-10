@@ -88,6 +88,7 @@ Formato de saída:
 Erros:
 invalid ean no caso de o dígito de verificação EAN estar errado.
 <ean>: no such product no caso de não existir nenhum produto com o <ean> indicado.
+
 f - factura os produtos no cesto:
 Formato de entrada: f [ [ <nif> ] <nome-cliente> ]
 Formato de saída: <número-de-produtos> <valor-pago> <número-de-factura>.
@@ -99,6 +100,7 @@ Após a facturação sem erros, o cesto fica novamente vazio, sem produtos.
 Erros:
 <nif>: no such nif no caso de não ser um NIF válido.
 invalid name no caso de não ser um nome de cliente válido.
+
 c - lista as facturas do sistema:
 Formato de entrada: c [ <nome-cliente> ]
 Formato de saída:
@@ -107,6 +109,7 @@ se for invocado com um argumento, imprime todas as facturas do cliente indicado 
 Erros:
 invalid name no caso de não ser um nome de cliente válido.
 <nome-do-cliente>: no such client no caso de não existir nenhuma factura associada ao cliente indicado.
+
 d - apaga o registo de um produto ou factura:
 Formato de entrada: d <número> [ <quantidade> ]
 Formato de saída:
