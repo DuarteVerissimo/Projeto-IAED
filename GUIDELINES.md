@@ -71,6 +71,7 @@ int main() {
     }
     return 0;
 }
+
 Opção fsanitize
 A opção fsanitize é uma ferramenta útil para analisar o projecto, em particular erros de memória.
 
