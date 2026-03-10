@@ -8,6 +8,7 @@
 #define MAXNOME 51
 #define MAXPRODUTOS 10000
 #define MAXIVA 26
+#define MAXLINHA 65535
 #define MAXFATURAS
 #define MAXCARROS
 

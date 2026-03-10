@@ -23,8 +23,52 @@ int verifica_ean(char ean[MAXEAN]) {
     return digito_de_verificacao == ean[i - 1] - '0';
 }
 
-int comando_p() {
+void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos) {
     Produto produto;
-    scanf("%s %c %lf %d %[^\n]", produto.ean, &produto.iva, &produto.preco, &produto.stock, produto.descricao);
+    char verificacao_descricao[MAXLINHA];
+    scanf("%s %c %lf %d %[^\n]", produto.ean, &produto.iva, &produto.preco, &produto.stock, verificacao_descricao);
 
+    if (!(verifica_ean(produto.ean))) {
+        printf("invalid ean\n");
+        return;
+    }
+    if (!(produto.iva >= 'A' && produto.iva <= 'Z')) {
+        printf("invalid iva\n");
+        return;
+    }
+    if (produto.preco <= 0) {
+        printf("invalid price\n");
+        return;
+    }
+    if (produto.stock < 0) {
+        printf("invalid quantity\n");
+        return;
+    }
+    if (strlen(verificacao_descricao) > 50) {
+        printf("invalid description\n");
+        return;
+    }
+    else
+        strcpy(produto.descricao, verificacao_descricao);
+
+    for(int i = 0; i < *ptotal_produtos; i++) {
+        if (strcmp(todosprodutos[i].ean, produto.ean) == 0) {
+            todosprodutos[i].stock += produto.stock;
+            todosprodutos[i].iva = produto.iva;
+            todosprodutos[i].preco = produto.preco;
+            printf("%d\n", todosprodutos[i].stock);
+            return;
+        }
+    }
+
+    if (*ptotal_produtos >= MAXPRODUTOS){
+        printf("invalid product\n");
+        return;
+    }
+
+    todosprodutos[*ptotal_produtos] = produto;
+    todosprodutos[*ptotal_produtos].numero = *ptotal_produtos;
+    (*ptotal_produtos)++;
+    printf("%d\n", produto.stock);
+    return;
 }
