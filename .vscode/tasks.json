@@ -6,7 +6,7 @@
         {
             "label": "Compilar",
             "type": "shell",
-            "command": "gcc -O3 -Wall -Wextra -Werror -Wno-unused-result -g -o projeto funcoes.c main.c"
+            "command": "gcc -O3 -Wall -Wextra -Werror -Wno-unused-result -g -o proj faturacao.c main.c"
         }
     ]
 }

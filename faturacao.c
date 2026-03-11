@@ -1,4 +1,4 @@
-#include "estruturas.h"
+#include "faturacao.h"
 
 int verifica_ean(char ean[MAXEAN]) {
     int i = 0, soma = 0, num = 0, digito_de_verificacao = 0;
