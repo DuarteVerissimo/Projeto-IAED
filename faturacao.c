@@ -9,7 +9,7 @@ int verifica_ean(char ean[MAXEAN]) {
     if (!((i == 13 || i == 8) && ean[i] == '\0'))
         return 0;
     
-    for(int j=0; j < i - 1; j++) {
+    for(int j = 0; j < i - 1; j++) {
         num = ean[j] - '0';
         
         if(j % 2 == 0)
@@ -55,6 +55,12 @@ void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos) {
         if (strcmp(todosprodutos[i].ean, produto.ean) == 0) {
             todosprodutos[i].stock += produto.stock;
             todosprodutos[i].iva = produto.iva;
+            
+            if (todosprodutos[i].preco != produto.preco) {
+                printf("product in use\n");
+                return;
+            }
+            
             todosprodutos[i].preco = produto.preco;
             printf("%d\n", todosprodutos[i].stock);
             return;
@@ -71,4 +77,66 @@ void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos) {
     (*ptotal_produtos)++;
     printf("%d\n", produto.stock);
     return;
+}
+
+int verifica_wildcard(char *codigo, char *ean) {
+    if (codigo[0] == '\0' && ean[0] == '\0'){
+        return 1;
+    }
+
+    else if ((codigo[0] == '?' && ean[0] != '\0') || codigo[0] == ean[0]) {
+        return verifica_wildcard(codigo + 1, ean + 1);
+    }
+
+    else if (codigo[0] == '*'){
+        return verifica_wildcard(codigo+ 1, ean) || (ean[0] != '\0' && verifica_wildcard(codigo, ean + 1));
+    }
+
+    else {
+        return 0;
+    }
+}
+
+void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
+    char arg[MAXLINHA];
+    char *palavra;
+    int encontrou = 0;
+
+    fgets(arg, MAXLINHA, stdin);
+    palavra = strtok(arg, " \n");
+    
+    if (palavra == NULL || strcmp(palavra, "*") == 0) {
+        for (int i = 0; i < total_produtos; i++) {
+            if(todosprodutos[i].stock > 0) {
+                printf("%s %c %.2lf %d %d %s\n",
+                    todosprodutos[i].ean,
+                    todosprodutos[i].iva,
+                    todosprodutos[i].preco,
+                    todosprodutos[i].vendidos,
+                    todosprodutos[i].stock,
+                    todosprodutos[i].descricao);
+            }
+        }
+    } else {
+        while (palavra != NULL) {
+            encontrou = 0;
+            for (int i = 0; i < total_produtos; i++) {
+                if (todosprodutos[i].stock && verifica_wildcard(palavra, todosprodutos[i].ean)) {
+                    printf("%s %c %.2lf %d %d %s\n",
+                        todosprodutos[i].ean,
+                        todosprodutos[i].iva,
+                        todosprodutos[i].preco,
+                        todosprodutos[i].vendidos,
+                        todosprodutos[i].stock,
+                        todosprodutos[i].descricao);
+                    encontrou = 1;
+                }
+            }
+            if (encontrou == 0) {
+                printf("%s:no such product\n", palavra);
+            }
+
+            palavra = strtok(NULL, " \n");
+        }
+    }
 }

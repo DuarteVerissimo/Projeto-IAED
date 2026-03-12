@@ -9,8 +9,6 @@
 #define MAXPRODUTOS 10000
 #define MAXIVA 26
 #define MAXLINHA 65535
-#define MAXFATURAS
-#define MAXCARROS
 
 /*Estrutura de produtos*/
 typedef struct {
@@ -25,13 +23,14 @@ typedef struct {
 
 typedef struct {
     char ean[MAXEAN];
+    int indice_produto;
     int quantidade;
 } ItemCarro;
 
 typedef struct {
     int numero;
     int nif;
-    char *nome; // char nome[MAXNOME];
+    char *nome;
     int quantidade;
     double valor;
 } Fatura;
