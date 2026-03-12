@@ -40,4 +40,8 @@ typedef struct {
     int percentagem;
 } Iva;
 
+void inicializa_iva(int taxas_iva[MAXIVA]);
 int verifica_ean(char ean[MAXEAN]);
+void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos, int taxas_iva[MAXIVA]);
+int verifica_wildcard(char *codigo, char *ean);
+void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos);

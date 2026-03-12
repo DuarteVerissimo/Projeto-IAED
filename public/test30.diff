@@ -1,4 +1,14 @@
-0a1,225
+1,9c1,9
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 1612
 > 590
 > 104
@@ -8,20 +18,43 @@
 > 243
 > 682
 > 1133
-> 1727
+11,14c11,14
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 1493
 > 132
 > 393
 > 1317
-> 1376
+16,21c16,21
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 1442
 > 661
 > 1856
 > 1380
 > 1137
 > 1059
-> 1878
-> 188
+24,34c24,34
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 903
 > 1674
 > 1354
@@ -33,12 +66,28 @@
 > 1674
 > 1077
 > 663
-> 45
+36,39c36,39
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 28
 > 480
 > 1061
 > 620
-> 1266
+41,50c41,50
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 629
 > 38
 > 1371
@@ -49,7 +98,16 @@
 > 725
 > 282
 > 872
-> 1388
+52,59c52,59
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 773
 > 241
 > 1871
@@ -58,28 +116,51 @@
 > 1001
 > 1497
 > 1233
-> 1065
+61c61
+< invalid ean
+---
 > 1279
-> 93
-> 788
+64,66c64,66
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 9
 > 249
 > 250
-> 665
-> 174
+69,74c69,74
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 39
 > 1534
 > 370
 > 1499
 > 759
 > 1340
-> 1084
+76c76
+< invalid ean
+---
 > 147
-> 606
+78,79c78,79
+< invalid ean
+< invalid ean
+---
 > 1925
 > 1085
-> 1086
-> 700
+82,88c82,88
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 599
 > 1400
 > 284
@@ -87,7 +168,16 @@
 > 1854
 > 605
 > 1818
-> 1375
+90,97c90,97
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+< invalid ean
+---
 > 678
 > 183
 > 833
@@ -96,9 +186,11 @@
 > 1283
 > 273
 > 326
-> 1560
+99c99
+< invalid ean
+---
 > 1283
-> 1950
+100a101,225
 > C 82.11 378 35072.47 YyKqCOR50cX1LmAiY3gufBXA5DDX5iPysWj96K1FqdrrMOE7pu
 > A 89.16 310 27639.60 Kex54FxlWNiDxEYz6sylnRsFgujjJIUp3R7d1gpMY1CMVwW6V0
 > C 39.16 250 11062.70 HwzpI78xKcvSEgIaWyqoAaTtBQYuF2yiBmR6eOBLMn9LXQ7NzV
