@@ -1,8 +1,0 @@
-1c1
-< invalid ean
----
-> 8
-3c3
-< ????????: no such product
----
-> 12345678 C 8.50 0 8 Cotonetes

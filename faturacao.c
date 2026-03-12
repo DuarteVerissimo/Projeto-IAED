@@ -18,32 +18,19 @@ int verifica_ean(char ean[MAXEAN]) {
         i++;
     }
 
-    if (i == 8 && ean[i] == '\0') {
-        for (int j = 0; j < i - 1; j++) {
-            num = ean[j] - '0';
-            
-            if (j % 2 == 0) {
-                soma += num * 3;
-            } else {
-                soma += num;
-            }
-        }
-    } else if (i == 13 && ean[i] == '\0') {
-        for (int j = 0; j < i - 1; j++) {
-            num = ean[j] - '0';
-
-            if (j % 2 == 0) {
-                soma += num;
-            } else {
-                soma += num * 3;
-            }
-        }
-    } else {
+    if (!((i == 13 || i == 8) && ean[i] == '\0'))
         return 0;
+    
+    for(int j = 0; j < i - 1; j++) {
+        num = ean[j] - '0';
+        
+        if(j % 2 == 0)
+            soma += num;
+        else
+            soma += num * 3;
     }
 
     digito_de_verificacao = (10 - (soma % 10)) % 10;
-
     return digito_de_verificacao == ean[i - 1] - '0';
 }
 
@@ -69,7 +56,7 @@ void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos, int tax
         printf("invalid quantity\n");
         return;
     }
-    if (strlen(verificacao_descricao) > 50) {
+    if (strlen(verificacao_descricao) > 50 || !(isupper(verificacao_descricao[0]))) {
         printf("invalid description\n");
         return;
     }
@@ -128,7 +115,7 @@ int verifica_wildcard(char *codigo, char *ean) {
 void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
     char arg[MAXLINHA];
     char *palavra;
-    int encontrou = 0;
+    int encontrou = 0, encontrou_prod_com_stock = 0;
 
     fgets(arg, MAXLINHA, stdin);
     palavra = strtok(arg, " \n");
@@ -143,8 +130,11 @@ void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
                     todosprodutos[i].vendidos,
                     todosprodutos[i].stock,
                     todosprodutos[i].descricao);
+                encontrou_prod_com_stock = 1;
             }
         }
+        if (!(encontrou_prod_com_stock))
+            printf("*: no such product\n");
     } else {
         while (palavra != NULL) {
             encontrou = 0;

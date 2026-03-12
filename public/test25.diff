@@ -1,11 +1,10 @@
-2,3c2,3
-< invalid ean
-< invalid ean
+3c3
+< invalid description
 ---
-> 20
 > 10
-5,6c5,21
+5,7c5,21
 < 96385074 D 1.20 0 100 Papel
+< 40170721 B 2.34 0 20 Cotonetes
 < 71245126 A 2.99 0 12 Sardinhas
 ---
 > D 1.20 1 1.48 Papel
