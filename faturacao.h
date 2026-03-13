@@ -3,9 +3,9 @@
 #include <ctype.h>
 #include <string.h>
 
-#define MAXDESC 51
+#define MAXDESC 51 //TRATAR DISTO DEPOIS
 #define MAXEAN 14
-#define MAXNOME 51
+#define MAXNOME 51 //TRATAR DISTO DEPOIS
 #define MAXPRODUTOS 10000
 #define MAXIVA 26
 #define MAXLINHA 65535
@@ -18,30 +18,35 @@ typedef struct {
     char iva;
     int stock;
     int vendidos;
-    int numero;
+    int numero; //ver se vou usar isto
 } Produto;
 
 typedef struct {
     char ean[MAXEAN];
     int indice_produto;
     int quantidade;
-} ItemCarro;
+} ItemNoCesto;
 
 typedef struct {
     int numero;
     int nif;
-    char *nome;
-    int quantidade;
+    char nome_cliente[MAXNOME]; //TRATAR DISTO DEPOIS
     double valor;
+    ItemNoCesto *Cesto;
+    int num_items;
 } Fatura;
 
 typedef struct {
-    char letra;
-    int percentagem;
-} Iva;
+    Produto todosprodutos[MAXPRODUTOS];
+    int total_produtos;
+    Fatura *faturas;
+    int total_faturas;
+    int fatura_ativa;
+    int taxas_iva[MAXIVA];
+} Sistema;
 
 void inicializa_iva(int taxas_iva[MAXIVA]);
 int verifica_ean(char ean[MAXEAN]);
-void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos, int taxas_iva[MAXIVA]);
+void comando_p(Sistema *Sistema);
 int verifica_wildcard(char *codigo, char *ean);
-void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos);
+void comando_l(Sistema *Sistema);
