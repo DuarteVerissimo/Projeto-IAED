@@ -2,6 +2,10 @@
 20
 invalid description
 12
-96385074 D 1.20 0 100 Papel
-40170721 B 2.34 0 20 Cotonetes
-71245126 A 2.99 0 12 Sardinhas
+no stock
+12345678: no such product
+A 2.99 2 5.98 Sardinhas
+B 2.34 4 9.92 Cotonetes
+12345678: no such product
+invalid ean
+A 2.99 4 11.96 Sardinhas

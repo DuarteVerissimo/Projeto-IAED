@@ -5,7 +5,7 @@ int main(int argc, char *argv[]) {
     sistema.total_produtos = 0;
     sistema.total_faturas = 0;
     sistema.faturas = NULL;
-    sistema.fatura_ativa = -1;
+    sistema.fatura_atual = -1;
     char comando;
 
     inicializa_iva(sistema.taxas_iva);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
             break;
 
         case 'a':
-        
+            comando_a(&sistema);
         }
     }
     return 0;

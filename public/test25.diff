@@ -2,18 +2,21 @@
 < invalid description
 ---
 > 10
-5,7c5,21
-< 96385074 D 1.20 0 100 Papel
-< 40170721 B 2.34 0 20 Cotonetes
-< 71245126 A 2.99 0 12 Sardinhas
+5,6c5,8
+< no stock
+< 12345678: no such product
 ---
 > D 1.20 1 1.48 Papel
 > 1 1.48 1
 > C 0.50 1 0.57 Água
 > 1 0.57 2
-> A 2.99 2 5.98 Sardinhas
+7a10
 > 2 5.98 3
-> B 2.34 4 9.92 Cotonetes
+9,11c12,21
+< 12345678: no such product
+< invalid ean
+< A 2.99 4 11.96 Sardinhas
+---
 > 4 9.92 4
 > C 0.50 1 0.57 Água
 > 1 0.57 5

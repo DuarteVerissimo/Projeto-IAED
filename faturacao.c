@@ -166,10 +166,20 @@ void comando_l(Sistema *sistema) {
 }
 
 
-void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, int taxas_iva[MAXIVA]) {
+void comando_a(Sistema *sistema) {
     char arg[MAXLINHA];
-    int quantidade = 1, encontrou_prod_com_ean = 0, indice_do_produto = 0;
+    int quantidade = 1, encontrou_prod_com_ean = 0, indice_do_produto = 0, indice_no_cesto = -1;
     char ean_prod_cesto[MAXEAN];
+
+    if (sistema->fatura_atual == -1) {
+        (sistema->total_faturas)++;
+        sistema->faturas = realloc(sistema->faturas, sizeof(Fatura) * sistema->total_faturas);
+        sistema->fatura_atual = sistema->total_faturas - 1;
+
+        sistema->faturas[sistema->fatura_atual].Cesto = NULL;
+        sistema->faturas[sistema->fatura_atual].num_items = 0;
+        sistema->faturas[sistema->fatura_atual].valor = 0;
+    }
 
     fgets(arg, MAXLINHA, stdin);
     if (sscanf(arg, "%d %s", &quantidade, ean_prod_cesto) != 2) {
@@ -181,42 +191,63 @@ void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, int taxas
         return;
     }
 
-    for (int i = 0; i < total_produtos; i++) {
+    for (int i = 0; i < sistema->total_produtos; i++) {
         if (!(strcmp(sistema->todosprodutos[i].ean, ean_prod_cesto))) {
             encontrou_prod_com_ean = 1;
             indice_do_produto = i;
             break;
         }
     }
+
+    for (int j = 0; j < sistema->faturas[sistema->fatura_atual].num_items; j++) {
+        if (indice_do_produto == sistema->faturas[sistema->fatura_atual].Cesto[j].indice_produto) {
+            indice_no_cesto = j;
+        }
+    }
+    int qtd_no_cesto = (indice_no_cesto == -1) ? 0 : sistema->faturas[sistema->fatura_atual].Cesto[indice_no_cesto].quantidade;
+
     
     if (!(encontrou_prod_com_ean)) {                //ver se dá mal por ordem dos erros
         printf("%s: no such product\n", ean_prod_cesto);
         return;
     }
-    if (quantidade < 0 && /* falta aqui alguma coisa */ + quantidade < 0) {
+    if (quantidade < 0 &&  qtd_no_cesto + quantidade < 0) {
         printf("invalid quantity\n");
         return;
     }
-    if (quantidade > 0 && todosprodutos[indice_do_produto].stock < quantidade) {
+    if (quantidade > 0 && sistema->todosprodutos[indice_do_produto].stock < quantidade) {
         printf("no stock\n");
         return;
+    } 
+
+    if (indice_no_cesto != -1) {
+        sistema->faturas[sistema->fatura_atual].Cesto[indice_no_cesto].quantidade += quantidade;
     } else {
-        /* falta aqui alguma coisa */ += quantidade;
-        todosprodutos[indice_do_produto].stock -= quantidade;
+        (sistema->faturas[sistema->fatura_atual].num_items)++;
+        
+        sistema->faturas[sistema->fatura_atual].Cesto = realloc(sistema->faturas[sistema->fatura_atual].Cesto, sizeof(ItemNoCesto) * sistema->faturas[sistema->fatura_atual].num_items);
+        
+        sistema->faturas[sistema->fatura_atual].Cesto[sistema->faturas[sistema->fatura_atual].num_items - 1].indice_produto = indice_do_produto;
+        sistema->faturas[sistema->fatura_atual].Cesto[sistema->faturas[sistema->fatura_atual].num_items - 1].quantidade = quantidade;
+        strcpy(sistema->faturas[sistema->fatura_atual].Cesto[sistema->faturas[sistema->fatura_atual].num_items - 1].ean, ean_prod_cesto);
     }
 
-    int valor_iva = taxas_iva[todosprodutos[indice_do_produto].iva - 'A'];
-    double preco_com_iva, total_no_cesto;
+    qtd_no_cesto += quantidade;
 
-    preco_com_iva = todosprodutos[indice_do_produto].preco * (1 + valor_iva/ 100);
-    total_no_cesto = preco_com_iva * /* falta aqui alguma coisa */;
+    sistema->todosprodutos[indice_do_produto].stock -= quantidade;
+    sistema->todosprodutos[indice_do_produto].vendidos += quantidade;
 
-    double total_final = (long long)(total_no_cesto * 100 + 0.5) / 100.0;
 
-    printf("%c %.2lf %d %.2lf %s",
-        todosprodutos[indice_do_produto].iva,
-        todosprodutos[indice_do_produto].preco,
-        /* falta aqui alguma coisa */,
+    int valor_iva = sistema->taxas_iva[sistema->todosprodutos[indice_do_produto].iva - 'A'];
+    double preco_com_iva = sistema->todosprodutos[indice_do_produto].preco * (1 + valor_iva / 100.0);
+    double total_acumulado = preco_com_iva * qtd_no_cesto;
+
+    double total_final = (long long)(total_acumulado * 100 + 0.5) / 100.0;
+
+    printf("%c %.2lf %d %.2lf %s\n",
+        sistema->todosprodutos[indice_do_produto].iva,
+        sistema->todosprodutos[indice_do_produto].preco,
+        qtd_no_cesto, // A quantidade total que está no carrinho
         total_final,
-        todosprodutos[indice_do_produto].descricao);
+        sistema->todosprodutos[indice_do_produto].descricao);
 }
