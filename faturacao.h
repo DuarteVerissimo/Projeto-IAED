@@ -32,7 +32,7 @@ typedef struct {
     int nif;
     char nome_cliente[MAXNOME]; //TRATAR DISTO DEPOIS
     double valor;
-    ItemNoCesto *Cesto;
+    //ItemNoCesto *Cesto;
     int num_items;
 } Fatura;
 
@@ -52,3 +52,4 @@ int verifica_ean(char ean[MAXEAN]);
 void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos, int taxas_iva[MAXIVA]);
 int verifica_wildcard(char *codigo, char *ean);
 void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos);
+void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCesto **cesto, int *num_items, int taxas_iva[MAXIVA]);

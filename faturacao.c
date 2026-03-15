@@ -1,10 +1,10 @@
 #include "faturacao.h"
 
 void inicializa_iva(int taxas_iva[MAXIVA]) {
-    taxas_iva[0] = 0;
-    taxas_iva[1] = 6;
-    taxas_iva[2] = 13;
-    taxas_iva[3] = 23;
+    taxas_iva['A' - 'A'] = 0;
+    taxas_iva['B' - 'A'] = 6;
+    taxas_iva['C' - 'A'] = 13;
+    taxas_iva['D' - 'A'] = 23;
 
     for(int i = 4; i < MAXIVA; i++) {
         taxas_iva[i] = -1;
@@ -156,5 +156,110 @@ void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
 
             palavra = strtok(NULL, " \n");
         }
+    }
+}
+
+void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCesto **cesto, int *num_items, int taxas_iva[MAXIVA]) {
+    char arg[MAXLINHA], ean_produto[MAXEAN];
+    int quantidade = 1, indice_cesto = -1, indice_produto = -1;
+
+    fgets(arg, MAXLINHA, stdin);
+    int arg_lidos = sscanf(arg, "%d %s", &quantidade, ean_produto);
+    
+    if (arg_lidos == 1) {
+        sscanf(arg, "%s", ean_produto);
+        quantidade = 1;
+    } else if (arg_lidos <= 0) {
+        for (int i = 0; i < *num_items; i++) {
+            int done = 1;
+            for (int j = 0; j < *num_items - 1 - i; j++) {
+                if (strcmp((*cesto)[j].ean, (*cesto)[j+1].ean) > 0) {
+                    ItemNoCesto temp = (*cesto)[j];
+                    (*cesto)[j] = (*cesto)[j+1];
+                    (*cesto)[j+1] = temp;
+                    done = 0;
+                }
+            }
+            if (done) break;
+        }
+        
+        
+        for (int i = 0; i < *num_items; i++) {
+            if ((*cesto)[i].quantidade > 0) {
+                double preco_total;
+                preco_total = todosprodutos[(*cesto)[i].indice_produto].preco * (*cesto)[i].quantidade * (1 + taxas_iva[todosprodutos[(*cesto)[i].indice_produto].iva - 'A'] / 100.0);
+                preco_total = (int)(preco_total * 100 + 0.5) / 100.0;
+                
+                printf("%c %.2lf %d %.2lf %s\n", 
+                    todosprodutos[(*cesto)[i].indice_produto].iva, 
+                    todosprodutos[(*cesto)[i].indice_produto].preco, 
+                    (*cesto)[i].quantidade, 
+                    preco_total,
+                    todosprodutos[(*cesto)[i].indice_produto].descricao);
+            }
+        }
+    }
+
+    if (arg_lidos > 0) {
+        if (!verifica_ean(ean_produto)) {
+            printf("invalid ean\n");
+            return;
+        }
+
+        for (int i = 0; i < total_produtos; i++) {
+            if (!(strcmp(todosprodutos[i].ean, ean_produto))) {
+                indice_produto = i;
+            }
+        }
+
+        if (indice_produto == -1) {
+            printf("%s: no such product\n", ean_produto);
+            return;
+        }
+
+        for (int j = 0; j < *num_items; j++) {
+            if (!strcmp((*cesto)[j].ean, ean_produto)) {
+                indice_cesto = j;
+                if (quantidade < 0 && (*cesto)[j].quantidade + quantidade < 0) {
+                    printf("invalid quantity\n");
+                    return;
+                }
+            }
+        }
+        
+        if (quantidade > 0 && todosprodutos[indice_produto].stock <= 0) {
+            printf("no stock\n");
+            return;
+        }
+
+        if (indice_cesto != -1) {
+            (*cesto)[indice_cesto].quantidade += quantidade;
+        } else {
+            *cesto = realloc(*cesto, sizeof(ItemNoCesto) * (*num_items + 1));
+            if (*cesto == NULL) {
+                printf("No memory.\n");
+                // voltar aqui
+                exit(0);
+            }
+            strcpy((*cesto)[*num_items].ean, ean_produto);
+            (*cesto)[*num_items].indice_produto = indice_produto;
+            (*cesto)[*num_items].quantidade = quantidade;
+            (*num_items)++;
+        }
+        
+        todosprodutos[indice_produto].stock -= quantidade;
+        todosprodutos[indice_produto].vendidos += quantidade;
+
+        double preco_total;
+        int indice = (indice_cesto != - 1) ? indice_cesto : (*num_items - 1);
+        preco_total = todosprodutos[indice_produto].preco * (*cesto)[indice].quantidade * (1 + taxas_iva[todosprodutos[indice_produto].iva - 'A'] / 100.0);
+        preco_total = (int)(preco_total * 100 + 0.5) / 100.0;
+
+        printf("%c %.2lf %d %.2lf %s\n", 
+            todosprodutos[indice_produto].iva, 
+            todosprodutos[indice_produto].preco, 
+            (*cesto)[indice].quantidade, 
+            preco_total,
+            todosprodutos[indice_produto].descricao);
     }
 }
