@@ -112,22 +112,29 @@ int verifica_wildcard(char *codigo, char *ean) {
     }
 }
 
-void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
+void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCesto *cesto, int num_items) {
     char arg[MAXLINHA];
     char *palavra;
-    int encontrou = 0, encontrou_prod_com_stock = 0;
+    int encontrou = 0, encontrou_prod_com_stock = 0, num_vendidos_nocesto = 0;
 
     fgets(arg, MAXLINHA, stdin);
     palavra = strtok(arg, " \n");
     
     if (palavra == NULL || strcmp(palavra, "*") == 0) {
         for (int i = 0; i < total_produtos; i++) {
+            num_vendidos_nocesto = 0;
             if(todosprodutos[i].stock > 0) {
+                for (int j = 0; j < num_items; j++) {
+                    if (cesto[j].indice_produto == i) {
+                        num_vendidos_nocesto = todosprodutos[i].vendidos + cesto[j].quantidade;
+                    }
+                }
+
                 printf("%s %c %.2lf %d %d %s\n",
                     todosprodutos[i].ean,
                     todosprodutos[i].iva,
                     todosprodutos[i].preco,
-                    todosprodutos[i].vendidos,
+                    num_vendidos_nocesto,
                     todosprodutos[i].stock,
                     todosprodutos[i].descricao);
                 encontrou_prod_com_stock = 1;
@@ -138,13 +145,20 @@ void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
     } else {
         while (palavra != NULL) {
             encontrou = 0;
+            num_vendidos_nocesto = 0;
             for (int i = 0; i < total_produtos; i++) {
                 if (todosprodutos[i].stock > 0 && verifica_wildcard(palavra, todosprodutos[i].ean)) {
+                    for (int j = 0; j < num_items; j++) {
+                        if (cesto[j].indice_produto == i) {
+                            num_vendidos_nocesto = todosprodutos[i].vendidos + cesto[j].quantidade;
+                        }
+                    }
+                    
                     printf("%s %c %.2lf %d %d %s\n",
                         todosprodutos[i].ean,
                         todosprodutos[i].iva,
                         todosprodutos[i].preco,
-                        todosprodutos[i].vendidos,
+                        num_vendidos_nocesto,
                         todosprodutos[i].stock,
                         todosprodutos[i].descricao);
                     encontrou = 1;
@@ -248,7 +262,7 @@ void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCes
         }
         
         todosprodutos[indice_produto].stock -= quantidade;
-        todosprodutos[indice_produto].vendidos += quantidade;
+        //todosprodutos[indice_produto].vendidos += quantidade;
 
         double preco_total;
         int indice = (indice_cesto != - 1) ? indice_cesto : (*num_items - 1);

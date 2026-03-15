@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
             break;
 
         case 'l':
-            comando_l(todosprodutos, total_produtos);
+            comando_l(todosprodutos, total_produtos, cesto, num_items_cesto);
             break;
 
         case 'a':
