@@ -36,6 +36,7 @@ typedef struct {
     int num_items;
 } Fatura;
 
+/*
 typedef struct {
     Produto todosprodutos[MAXPRODUTOS];
     int total_produtos;
@@ -44,10 +45,10 @@ typedef struct {
     int fatura_atual;
     int taxas_iva[MAXIVA];
 } Sistema;
+ */
 
 void inicializa_iva(int taxas_iva[MAXIVA]);
 int verifica_ean(char ean[MAXEAN]);
-void comando_p(Sistema *Sistema);
+void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos, int taxas_iva[MAXIVA]);
 int verifica_wildcard(char *codigo, char *ean);
-void comando_l(Sistema *Sistema);
-void comando_a(Sistema *sistema);
+void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos);
