@@ -54,3 +54,4 @@ void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCes
 void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCesto **cesto, int *num_items, int taxas_iva[MAXIVA]);
 void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA]);
 void comando_f(Produto todosprodutos[MAXPRODUTOS], ItemNoCesto **cesto, int *num_items, Fatura **faturas, int *num_faturas, int *proximo_numero_fatura, int taxas_iva[MAXIVA]);
+void comando_c(Fatura *faturas, int num_faturas);

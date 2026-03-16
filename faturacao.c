@@ -439,3 +439,45 @@ void comando_f(Produto todosprodutos[MAXPRODUTOS], ItemNoCesto **cesto, int *num
     *cesto = NULL;
     *num_items = 0;
 }
+
+
+void comando_c(Fatura *faturas, int num_faturas) {
+    char arg[MAXLINHA], prim_arg[MAXLINHA], *nome;
+    int encontrou = 0;
+
+    fgets(arg, MAXLINHA, stdin);
+    int arg_lidos = sscanf(arg, "%s", prim_arg);
+
+    if (arg_lidos) {
+        nome = extrai_nome(arg);
+
+        for (int i = 0; i < num_faturas; i++) {
+            if (!strcmp(faturas[i].nome_cliente, nome)) {
+                encontrou = 1;
+                printf("%d %.2lf %s\n", faturas[i].numero, faturas[i].valor, faturas[i].nome_cliente);
+            }
+        }
+
+        if (!encontrou) {
+            printf("%s: no such client\n", nome);
+        }
+        free(nome);
+        return;
+    } else {
+        for (int i = 0; i < num_faturas; i++) {
+            for (int j = 0; j < num_faturas - 1 - i; j++) {
+                if (strcmp(faturas[j].nome_cliente, faturas[j + 1].nome_cliente) > 0) {
+                    Fatura aux = faturas[j];
+                    faturas[j] = faturas[j+1];
+                    faturas[j+1] = aux;
+                }
+            }
+        }
+
+        for (int i = 0; i < num_faturas; i++) {
+            printf("%d %.2lf %s\n", faturas[i].numero, faturas[i].valor, faturas[i].nome_cliente);
+        }
+    }
+}
+
+

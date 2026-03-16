@@ -32,6 +32,11 @@ int main(int argc, char *argv[]) {
         scanf(" %c", &comando);
         switch (comando) {
         case 'q':
+            for (int i = 0; i < num_faturas; i++) {
+                free(faturas[i].nome_cliente);
+            }
+            free(faturas);
+            free(cesto);
             return 0;
         
         case 'p':
@@ -52,6 +57,13 @@ int main(int argc, char *argv[]) {
 
         case 'f':
             comando_f(todosprodutos, &cesto, &num_items_cesto, &faturas, &num_faturas, &numero_proxima_fatura, taxas_iva);
+            break;
+
+        case 'c':
+            comando_c(faturas, num_faturas);
+            break;
+        
+        default:
             break;
         }
     }
