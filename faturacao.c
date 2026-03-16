@@ -278,8 +278,7 @@ void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCes
     }
 }
 
-//void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA]);
-void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
+void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA]) {
     char arg[MAXLINHA], ean_produto[MAXEAN];
     int encontrou = 0;
 
@@ -306,7 +305,21 @@ void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
             return;
         }
     } else {
-        //falta aqui 
+        double valor_total = 0.0;
+        int total_items = 0;
+
+        for(int i = 0; i < num_faturas; i++) {
+            valor_total += faturas[i].valor;
+            total_items += faturas[i].num_items;
+        }
+
+        printf("%d %d %.2lf\n", total_items, num_faturas, valor_total);
+
+        for (int i = 0; i < MAXIVA; i++) {
+            if (taxas_iva[i] >= 0) {
+                printf("%c %d%%\n", 'A' + i, taxas_iva[i]);
+            }
+        }
     }
 }
 
