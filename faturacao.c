@@ -277,3 +277,152 @@ void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCes
             todosprodutos[indice_produto].descricao);
     }
 }
+
+//void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA]);
+void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos) {
+    char arg[MAXLINHA], ean_produto[MAXEAN];
+    int encontrou = 0;
+
+    fgets(arg, MAXLINHA, stdin);
+
+    if (sscanf(arg, "%s", ean_produto) == 1) {
+        if (!verifica_ean(ean_produto)) {
+            printf("invalid ean\n");
+            return;
+        }
+
+
+        for (int i = 0; i < total_produtos; i++) {
+            if (!strcmp(todosprodutos[i].ean, ean_produto)) {
+                encontrou = 1;
+
+                printf ("%d %d %s\n", todosprodutos[i].stock, todosprodutos[i].vendidos, todosprodutos[i].descricao);
+                return;
+            }
+        }
+
+        if (!encontrou) {
+            printf("%s: no such product\n", ean_produto);
+            return;
+        }
+    } else {
+        //falta aqui 
+    }
+}
+
+
+int verifica_nif(char *arg) {
+    int tamanho = strlen(arg);
+    
+    if (tamanho != 9) return 0;
+
+    for (int i = 0; i < tamanho; i++) {
+        if (!isdigit(arg[i])) return 0;
+    }
+
+    return 1;
+}
+
+char *extrai_nome(char *arg) {
+    char *aspas = strchr(arg, '"');
+    
+    if (aspas != NULL) {
+        char *final_aspas = strchr(aspas + 1, '"');
+        int tamanho_nome = final_aspas - aspas - 1;
+        char *nome = malloc(tamanho_nome + 1);
+
+        if (nome == NULL) {
+            printf("No memory.\n");
+            exit(0);
+        }        
+        
+        strncpy(nome, aspas + 1, tamanho_nome);
+        nome[tamanho_nome] = '\0';
+
+        return nome;
+    } else {
+        char argcopy[MAXLINHA];
+        sscanf(arg, "%s", argcopy);
+        int tamanho_nome = strlen(argcopy);
+        char *nome = malloc(tamanho_nome + 1);
+
+        if (nome == NULL) {
+            printf("No memory.\n");
+            exit(0);
+        }   
+
+        strcpy(nome, argcopy);
+
+        return nome;
+    }
+}
+
+void comando_f(Produto todosprodutos[MAXPRODUTOS], ItemNoCesto **cesto, int *num_items, Fatura **faturas, int *num_faturas, int *numero_proxima_fatura, int taxas_iva[MAXIVA]) {
+    char arg[MAXLINHA];
+    char primeiro_arg[MAXLINHA];
+    int nif = 999999999;
+    char *nome = NULL;
+    int lidos, num_items_dif_cesto = 0;
+
+    fgets (arg, MAXLINHA, stdin);
+    lidos = sscanf(arg, "%s", primeiro_arg);
+
+    if (lidos <= 0) {
+        nome = malloc(strlen("Cliente final") + 1);
+        strcpy(nome, "Cliente final");
+
+    } else if (strcmp(primeiro_arg, "error") == 0) {
+        for (int i = 0; i < *num_items; i++) {
+            todosprodutos[(*cesto)[i].indice_produto].stock += (*cesto)[i].quantidade;
+        }
+        free(*cesto);
+        *cesto = NULL;
+        *num_items = 0;
+        return;
+
+    } else if (verifica_nif(primeiro_arg)){
+        nif = atoi(primeiro_arg);
+        char *resto = arg + strlen(primeiro_arg);
+        nome = extrai_nome(resto);
+        
+    } else {
+        nome = extrai_nome(arg);
+    }
+
+    double preco_total = 0.0;
+    for (int i = 0; i < *num_items; i++) {
+        preco_total += todosprodutos[(*cesto)[i].indice_produto].preco * (*cesto)[i].quantidade * (1 + taxas_iva[todosprodutos[(*cesto)[i].indice_produto].iva - 'A']/100.0);
+    }
+    preco_total = (int)(preco_total * 100 + 0.5) / 100.0;
+
+    *faturas = realloc(*faturas, sizeof(Fatura) * (*num_faturas + 1));
+
+    if (*faturas == NULL) {
+        printf("No memory.\n");
+        exit(0);
+    }   
+
+    (*faturas)[*num_faturas].nif = nif;
+    (*faturas)[*num_faturas].nome_cliente = malloc(strlen(nome) + 1);
+    strcpy((*faturas)[*num_faturas].nome_cliente, nome);
+    (*faturas)[*num_faturas].numero = *numero_proxima_fatura;
+    (*faturas)[*num_faturas].valor = preco_total;
+    
+    for (int i = 0; i < *num_items; i++) {
+        if ((*cesto)[i].quantidade > 0) {
+            todosprodutos[(*cesto)[i].indice_produto].vendidos += (*cesto)[i].quantidade;
+            num_items_dif_cesto++;
+        }
+    }
+    (*faturas)[*num_faturas].num_items = num_items_dif_cesto;
+    
+    printf("%d %.2lf %d\n", (*faturas)[*num_faturas].num_items, (*faturas)[*num_faturas].valor, (*faturas)[*num_faturas].numero);
+    
+    free(nome);
+    (*num_faturas)++;
+    (*numero_proxima_fatura)++;
+
+    free(*cesto);
+    *cesto = NULL;
+    *num_items = 0;
+}

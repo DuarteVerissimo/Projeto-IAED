@@ -30,9 +30,8 @@ typedef struct {
 typedef struct {
     int numero;
     int nif;
-    char nome_cliente[MAXNOME]; //TRATAR DISTO DEPOIS
+    char *nome_cliente; 
     double valor;
-    //ItemNoCesto *Cesto;
     int num_items;
 } Fatura;
 
@@ -53,3 +52,5 @@ void comando_p(Produto todosprodutos[MAXPRODUTOS], int *ptotal_produtos, int tax
 int verifica_wildcard(char *codigo, char *ean);
 void comando_l(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCesto *cesto, int num_items);
 void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCesto **cesto, int *num_items, int taxas_iva[MAXIVA]);
+void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos); //void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA]);
+void comando_f(Produto todosprodutos[MAXPRODUTOS], ItemNoCesto **cesto, int *num_items, Fatura **faturas, int *num_faturas, int *proximo_numero_fatura, int taxas_iva[MAXIVA]);

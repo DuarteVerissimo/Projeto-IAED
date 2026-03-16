@@ -7,8 +7,8 @@ int main(int argc, char *argv[]) {
     ItemNoCesto *cesto = NULL;
     int num_items_cesto = 0;
 
-    //Fatura *faturas = NULL;
-    //int num_faturas = 0, capacidade_faturas = 0, numero_proxima_fatura;
+    Fatura *faturas = NULL;
+    int num_faturas = 0, numero_proxima_fatura = 1;
 
     char comando;
     
@@ -44,6 +44,15 @@ int main(int argc, char *argv[]) {
 
         case 'a':
             comando_a(todosprodutos, total_produtos, &cesto, &num_items_cesto, taxas_iva);
+            break;
+
+        case 'r':
+            comando_r(todosprodutos, total_produtos);//comando_r(todosprodutos, total_produtos, faturas, num_faturas, taxas_iva);
+            break;
+
+        case 'f':
+            comando_f(todosprodutos, &cesto, &num_items_cesto, &faturas, &num_faturas, &numero_proxima_fatura, taxas_iva);
+            break;
         }
     }
     return 0;
