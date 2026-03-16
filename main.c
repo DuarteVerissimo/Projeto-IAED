@@ -63,6 +63,10 @@ int main(int argc, char *argv[]) {
             comando_c(faturas, num_faturas);
             break;
         
+        case 'd':
+            comando_d(todosprodutos, &total_produtos, &faturas, &num_faturas, cesto, num_items_cesto);
+            break;
+        
         default:
             break;
         }

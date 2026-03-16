@@ -395,7 +395,8 @@ void comando_f(Produto todosprodutos[MAXPRODUTOS], ItemNoCesto **cesto, int *num
 
     } else if (verifica_nif(primeiro_arg)){
         nif = atoi(primeiro_arg);
-        char *resto = arg + strlen(primeiro_arg);
+        char *pos = strstr(arg, primeiro_arg);
+        char *resto = pos + strlen(primeiro_arg);
         nome = extrai_nome(resto);
         
     } else {
@@ -448,7 +449,7 @@ void comando_c(Fatura *faturas, int num_faturas) {
     fgets(arg, MAXLINHA, stdin);
     int arg_lidos = sscanf(arg, "%s", prim_arg);
 
-    if (arg_lidos) {
+    if (arg_lidos > 0) {
         nome = extrai_nome(arg);
 
         for (int i = 0; i < num_faturas; i++) {
@@ -481,3 +482,78 @@ void comando_c(Fatura *faturas, int num_faturas) {
 }
 
 
+void comando_d(Produto todosprodutos[MAXPRODUTOS], int *total_produtos, Fatura **faturas, int *num_faturas, ItemNoCesto *cesto, int num_items_cesto) {
+    char arg[MAXLINHA], primeiro_arg[MAXLINHA], segundo_arg[MAXLINHA];
+
+    fgets(arg, MAXLINHA, stdin);
+    int lidos = sscanf(arg, "%s %s", primeiro_arg, segundo_arg);
+
+    if (lidos == 2) {
+        if (!verifica_ean(primeiro_arg)) {
+            printf("invalid ean\n");
+            return;
+        }
+
+        int quantidade = atoi(segundo_arg);
+
+        if (quantidade < 0) {
+            printf("invalid quantity\n");
+            return;
+        }
+        
+        int indice_produto = -1;
+        for (int i = 0; i < *total_produtos; i++) {
+            if (!strcmp(todosprodutos[i].ean, primeiro_arg)) {
+                indice_produto = i;
+                break;
+            }
+        }
+        if (indice_produto == -1) {
+            printf("%s: no such product\n", primeiro_arg);
+            return;
+        }
+
+        for (int i = 0; i < num_items_cesto; i++) {
+            if (cesto[i].quantidade > 0 && !strcmp(cesto[i].ean, primeiro_arg)) {
+                printf("product in use\n");
+                return;
+            }
+        }
+
+        int stock_final = todosprodutos[indice_produto].stock - quantidade;
+
+        if (stock_final < 0) {
+            printf("invalid quantity\n");
+            return;
+        }
+
+        todosprodutos[indice_produto].stock = stock_final;
+        printf("%d %s\n", stock_final, todosprodutos[indice_produto].descricao);
+        if(stock_final == 0) {
+            for (int j = indice_produto; j < *total_produtos - 1; j++)
+                todosprodutos[j] = todosprodutos[j + 1];
+            (*total_produtos)--;
+        }
+    } else if (lidos == 1) {
+        int num_fatura = atoi(primeiro_arg), encontrou = 0;
+
+        for (int i = 0; i < *num_faturas; i++) {
+            if ((*faturas)[i].numero == num_fatura) {
+                encontrou  = 1;
+
+                printf("%.2lf %d %s\n", (*faturas)[i].valor, (*faturas)[i].nif, (*faturas)[i].nome_cliente);
+
+                free((*faturas)[i].nome_cliente);
+                for (int j = i; j < *num_faturas - 1; j++)
+                    (*faturas)[j] = (*faturas)[j+1];
+
+                (*num_faturas)--;
+                break;
+            }
+        }
+        if (!encontrou) {
+            printf("%d: no such invoice\n", num_fatura);
+            return;
+        }
+    }
+}
