@@ -173,3 +173,37 @@ void commandP(System *sys, char *buf) {
     }
     return;
 }
+
+
+/** Print product information in the format:
+ * ean iva price soldAndInCart stock description
+ * @param product       pointer to product
+ * @param soldAndInCart quantity sold plus quantity in cart
+ */
+void printProduct(Product *product, int soldAndInCart) {
+    printf("%s %c %.2lf %d %d %s\n",
+        product->ean,
+        product->iva,
+        product->price,
+        soldAndInCart,
+        product->stock,
+        product->description);
+}
+
+
+
+/** Get the total quantity sold plus quantity in cart for a product.
+ * @param sys           system state
+ * @param idx_product   index of product in products array
+ * @return              total quantity sold and in cart
+ */
+int getProductSoldAndInCart(System *sys, int idx_product) {
+    int idx_cart = findProductInCart(sys->cart, sys->cart_size, idx_product);
+    
+    if (idx_cart != -1)
+        return  sys->products[idx_product].sold + sys->cart[idx_cart].quantity;
+    else 
+        return sys->products[idx_product].sold;
+}
+
+

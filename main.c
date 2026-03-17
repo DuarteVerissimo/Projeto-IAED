@@ -1,3 +1,6 @@
+//gcc -O3 -Wall -Wextra -Werror -Wno-unused-result -o proj faturacao.c main.c
+
+
 #include "faturacao.h"
 
 int main(int argc, char *argv[]) {

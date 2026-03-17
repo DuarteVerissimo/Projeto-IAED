@@ -29,6 +29,10 @@ int findProduct(Product products[MAXPRODUCTS], int total_products, char *ean);
 int validateProduct(System *sys, char *ean, char iva, double price, int quantity, char *description);
 void addProduct(System *sys, char *ean, char iva, double price, int stock, char *description, int idx_cart);
 void commandP(System *sys, char buf[MAXLINE]);
+void printProduct(Product *product, int soldAndInCart);
+void listAllProducts(System *sys);
+void listProductsByPattern(System *sys, char *pattern);
+int getProductSoldAndInCart(System *sys, int idx_product);
 void commandL(System *sys, char buf[MAXLINE]);
 
 
