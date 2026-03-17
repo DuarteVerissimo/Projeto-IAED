@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
             break;
 
         case 'r':
-            comando_r(todosprodutos, total_produtos, faturas, num_faturas, taxas_iva);
+            comando_r(todosprodutos, total_produtos, faturas, num_faturas, taxas_iva, cesto, num_items_cesto);
             break;
 
         case 'f':

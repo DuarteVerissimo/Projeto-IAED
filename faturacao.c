@@ -278,9 +278,9 @@ void comando_a(Produto todosprodutos[MAXPRODUTOS], int total_produtos, ItemNoCes
     }
 }
 
-void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA]) {
+void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *faturas, int num_faturas, int taxas_iva[MAXIVA], ItemNoCesto *cesto, int num_items_cesto) {
     char arg[MAXLINHA], ean_produto[MAXEAN];
-    int encontrou = 0;
+    int encontrou = 0, num_vendidos_nocesto = 0;
 
     fgets(arg, MAXLINHA, stdin);
 
@@ -294,8 +294,13 @@ void comando_r(Produto todosprodutos[MAXPRODUTOS], int total_produtos, Fatura *f
         for (int i = 0; i < total_produtos; i++) {
             if (!strcmp(todosprodutos[i].ean, ean_produto)) {
                 encontrou = 1;
-
-                printf ("%d %d %s\n", todosprodutos[i].stock, todosprodutos[i].vendidos, todosprodutos[i].descricao);
+                num_vendidos_nocesto = 0;
+                for (int j = 0; j < num_items_cesto; j++) {
+                    if (cesto[j].indice_produto == i) {
+                        num_vendidos_nocesto = todosprodutos[i].vendidos + cesto[j].quantidade;
+                    }
+                }
+                printf ("%d %d %s\n", todosprodutos[i].stock, num_vendidos_nocesto, todosprodutos[i].descricao);
                 return;
             }
         }
