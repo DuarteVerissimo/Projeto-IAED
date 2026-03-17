@@ -169,9 +169,7 @@ void commandP(System *sys, char *buf) {
         int idx_product = findProduct(sys->products, sys->total_products, ean);
         int idx_cart = findProductInCart(sys->cart, sys->cart_size, idx_product);
         addProduct(sys,  ean, iva, price, quantity, description, idx_cart);
-        return;
     }
-    return;
 }
 
 
@@ -207,3 +205,26 @@ int getProductSoldAndInCart(System *sys, int idx_product) {
 }
 
 
+void listAllProducts(System *sys) {
+    int i, soldAndInCart;
+    for (i = 0; i < sys->total_products; i++) {
+        if (sys->products[i].stock > 0) {
+            soldAndInCart = getProductSoldAndInCart(sys, i);
+            printProduct(&sys->products[i], soldAndInCart);
+        }
+    }
+}
+
+
+void listProductsByPattern(System *sys, char *pattern) {
+    int i, soldAndInCart, found = 0;
+    for (i = 0; i < sys->total_products; i++) {
+        if (sys->products[i].stock > 0 && verifyWildcard(pattern, sys->products[i].ean)) {
+            soldAndInCart = getProductSoldAndInCart(sys, i);
+            printProduct(&sys->products[i], soldAndInCart);
+            found = 1;
+        }
+    }
+    if (!found)
+        printf("%s: %s\n", pattern, ENO_PRODUCT);
+}
