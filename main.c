@@ -1,77 +1,51 @@
-//gcc -O3 -Wall -Wextra -Werror -Wno-unused-result -o proj faturacao.c main.c
+#include "types.h"
+#include "products.h"
+#include "cart.h"
+#include "invoices.h"
+#include "iva.h"
 
-
-#include "faturacao.h"
-
+/** Main function
+ * @param argc  number of arguments
+ * @param argv  argument vector
+ * @return      always returns 0
+ */
 int main(int argc, char *argv[]) {
-    Produto todosprodutos[MAXPRODUTOS];
-    int total_produtos = 0;
+    char buf[MAXLINE];
+    System sys = {0};
+    sys.next_invoice_number = 1;
 
-    ItemNoCesto *cesto = NULL;
-    int num_items_cesto = 0;
-
-    Fatura *faturas = NULL;
-    int num_faturas = 0, numero_proxima_fatura = 1;
-
-    char comando;
-    
-    int taxas_iva[MAXIVA];
-    inicializa_iva(taxas_iva);
+    initIva(sys.iva_taxes);
     if (argc > 1) {
-        FILE *ficheiro_iva = fopen(argv[1], "r");
-        
-        
-        if (ficheiro_iva != NULL) {
-            int valor_taxa_iva;
-            char letra_iva;
-            while (fscanf(ficheiro_iva, " %c %d", &letra_iva, &valor_taxa_iva) == 2) {
-                taxas_iva[letra_iva - 'A'] = valor_taxa_iva;
-            }
+        FILE *f = fopen(argv[1], "r");
+
+        if (f != NULL) {
+            sys.iva_taxes['A' - 'A'] = -1;
+            sys.iva_taxes['B' - 'A'] = -1;
+            sys.iva_taxes['C' - 'A'] = -1;
+            sys.iva_taxes['D' - 'A'] = -1;
+            int value_iva;
+            char letter_iva;
+            while (fscanf(f, " %c %d", &letter_iva, &value_iva) == 2)
+                sys.iva_taxes[letter_iva - 'A'] = value_iva;
         }
-        fclose(ficheiro_iva);
+        fclose(f);
     }
-
-    while (1) {
-        scanf(" %c", &comando);
-        switch (comando) {
-        case 'q':
-            for (int i = 0; i < num_faturas; i++) {
-                free(faturas[i].nome_cliente);
-            }
-            free(faturas);
-            free(cesto);
-            return 0;
-        
-        case 'p':
-            comando_p(todosprodutos, &total_produtos, taxas_iva);
-            break;
-
-        case 'l':
-            comando_l(todosprodutos, total_produtos, cesto, num_items_cesto);
-            break;
-
-        case 'a':
-            comando_a(todosprodutos, total_produtos, &cesto, &num_items_cesto, taxas_iva);
-            break;
-
-        case 'r':
-            comando_r(todosprodutos, total_produtos, faturas, num_faturas, taxas_iva, cesto, num_items_cesto);
-            break;
-
-        case 'f':
-            comando_f(todosprodutos, &cesto, &num_items_cesto, &faturas, &num_faturas, &numero_proxima_fatura, taxas_iva);
-            break;
-
-        case 'c':
-            comando_c(faturas, num_faturas);
-            break;
-        
-        case 'd':
-            comando_d(todosprodutos, &total_produtos, &faturas, &num_faturas, cesto, num_items_cesto);
-            break;
-        
-        default:
-            break;
+    while (fgets(buf, MAXLINE, stdin)) {
+        switch (buf[0]) {
+			case 'q': 
+                for (int i = 0; i  < sys.num_invoices; i++) 
+                    free(sys.invoices[i].client_name);
+                free(sys.invoices);
+                free(sys.cart);    
+                return 0;
+			case 'p': commandP(&sys, buf); break;
+			case 'l': commandL(&sys, buf); break;
+			case 'a': commandA(&sys, buf); break;
+			case 'r': commandR(&sys, buf); break;
+			case 'f': commandF(&sys, buf); break;
+			case 'c': commandC(&sys, buf); break;
+			case 'd': commandD(&sys, buf); break;
+			default: break;
         }
     }
     return 0;

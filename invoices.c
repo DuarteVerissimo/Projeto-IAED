@@ -132,7 +132,7 @@ void commandF(System *sys, char buf[MAXLINE]) {
     } else if (clientInfo) {
         for (i = 0; i < sys->cart_size; i++) {
             if (sys->cart[i].quantity > 0)
-                num_items++;
+                num_items += sys->cart[i].quantity;
             idx_product = sys->cart[i].product_index;
             total_price += calculatePrice(sys->products[idx_product].price, 
                 sys->cart[i].quantity, sys->iva_taxes[sys->products[idx_product].iva - 'A']);

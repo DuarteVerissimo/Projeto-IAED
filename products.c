@@ -91,7 +91,7 @@ int validateProduct(System *sys, char *ean, char iva, double price, int quantity
         puts(EINVALID_QTY);
         return 0;
     }
-    if (strlen(description) > 50 || !(isupper(description[0]))) {
+    if (strlen(description) > 50 || (description[0] >= 'a' && description[0] <= 'z')) {
         puts(EINVALID_DESC);
         return 0;
     }
@@ -152,11 +152,11 @@ void addProduct(System *sys, char *ean, char iva, double price, int quantity,
  * @param buf   input line
  */
 void commandP(System *sys, char buf[MAXLINE]) {
-    char ean[MAXEAN];
+    char ean[MAXLINE];
     char iva;
     double price;
     int quantity;
-    char description[MAXDESC];
+    char description[MAXLINE];
 
     sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity, description);
 

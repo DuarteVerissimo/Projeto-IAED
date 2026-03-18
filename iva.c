@@ -5,12 +5,13 @@
 #include "iva.h"
 
 void initIva(int iva_taxes[MAXIVA]) {
+    int i;
     iva_taxes['A' - 'A'] = 0;
     iva_taxes['B' - 'A'] = 6;
     iva_taxes['C' - 'A'] = 13;
     iva_taxes['D' - 'A'] = 23;
 
-    for (int i = 'E' - 'A'; i < MAXIVA; i++)
+    for (i = 'E' - 'A'; i < MAXIVA; i++)
         iva_taxes[i] = - 1;
 }
 
@@ -21,9 +22,8 @@ void initIva(int iva_taxes[MAXIVA]) {
  * @return          total price with iva rounded to cents
  */
 double calculatePrice(double price, int quantity, int iva_value) {
-    double total_price = price * quantity * (1 + iva_value / 100.0);
-    total_price = (int)(total_price * 100 + 0.5) / 100.0;
-    return total_price;
+    double cents = price * quantity * (100 + iva_value);
+    return (int)(cents + 0.5) / 100.0;
 }
 
 void commandR(System *sys, char buf[MAXLINE]) {
@@ -50,7 +50,7 @@ void commandR(System *sys, char buf[MAXLINE]) {
             total_items += sys->invoices[i].num_items;
         }
 
-        printf("%d %d %.2lf\n", total_items, sys->num_invoices, total_value);
+        printf("%d %d %.2lf\n", total_items, sys->next_invoice_number - 1, total_value);
         for (int i = 0; i < MAXIVA; i++) {
             if (sys->iva_taxes[i] >= 0) {
                 printf("%c %d%%\n", 'A' + i, sys->iva_taxes[i]);
