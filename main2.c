@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
 			case 'l': commandL(&sys, buf); break;
 			case 'a': commandA(&sys, buf); break;
 			//case 'r': commandR(&sys, buf); break;
-			//case 'f': commandF(&sys, buf); break;
-			//case 'c': commandC(&sys, buf); break;
+			case 'f': commandF(&sys, buf); break;
+			case 'c': commandC(&sys, buf); break;
 			//case 'd': commandD(&sys, buf); break;
 			default: break;
         }

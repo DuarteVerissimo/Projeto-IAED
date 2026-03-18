@@ -240,3 +240,10 @@ void commandL(System *sys, char buf[MAXLINE]) {
         }
     }
 }
+
+void deleteProduct(System *sys, int idx_product) {
+    int i;
+    for (i = idx_product; i < sys->total_products - 1; i++)
+        sys->products[i] = sys->products[i + 1];
+    (sys->total_products)--;
+}

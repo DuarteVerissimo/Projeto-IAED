@@ -34,6 +34,7 @@ void listAllProducts(System *sys);
 void listProductsByPattern(System *sys, char *pattern);
 int getProductSoldAndInCart(System *sys, int idx_product);
 void commandL(System *sys, char buf[MAXLINE]);
+void deleteProduct(System *sys, int idx_product);
 
 
 #endif

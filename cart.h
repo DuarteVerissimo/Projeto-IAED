@@ -2,6 +2,10 @@
 #define CART_H
 
 #include "types.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
 int findProductInCart(System *sys, int product_idx);
 void addToCart(System *sys, int idx_product, int quantity);
