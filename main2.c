@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     char buf[MAXLINE];
     System sys = {0};
 
-    initIva(sys.taxas_iva);
+    initIva(sys.iva_taxes);
     if (argc > 1) {
         FILE *f = fopen(argv[1], "r");
 
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
             int value_iva;
             char letter_iva;
             while (fscanf(f, " %c %d", &letter_iva, &value_iva) == 2)
-                sys.taxas_iva[letter_iva - 'A'] = value_iva;
+                sys.iva_taxes[letter_iva - 'A'] = value_iva;
         }
         fclose(f);
     }
@@ -31,10 +31,10 @@ int main(int argc, char *argv[]) {
 			case 'p': commandP(&sys, buf); break;
 			case 'l': commandL(&sys, buf); break;
 			case 'a': commandA(&sys, buf); break;
-			case 'r': commandR(&sys, buf); break;
-			case 'f': commandF(&sys, buf); break;
-			case 'c': commandC(&sys, buf); break;
-			case 'd': commandD(&sys, buf); break;
+			//case 'r': commandR(&sys, buf); break;
+			//case 'f': commandF(&sys, buf); break;
+			//case 'c': commandC(&sys, buf); break;
+			//case 'd': commandD(&sys, buf); break;
 			default: break;
         }
     }

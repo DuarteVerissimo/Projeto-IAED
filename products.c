@@ -9,7 +9,7 @@
  * @param ean   EAN code to verify
  * @return      1 if valid, 0 otherwise
  */
-int verifyEAN(char ean[MAXEAN]) {
+int verifyEan(char ean[MAXEAN]) {
     int i = 0, sum = 0, num = 0, check_digit = 0;
 
     while (ean[i] != '\0' && isdigit(ean[i])) 
@@ -80,11 +80,11 @@ int findProduct(Product products[MAXPRODUCTS], int total_products, char *ean) {
 int validateProduct(System *sys, char *ean, char iva, double price, int quantity, char *description) {
     int idx_iva = iva - 'A';
     
-    if (!(verifyEAN(ean))) {
+    if (!(verifyEan(ean))) {
         puts(EINVALID_EAN);
         return 0;
     }
-    if (!(sys->taxas_iva[idx_iva] >= 0)) {
+    if (!(sys->iva_taxes[idx_iva] >= 0)) {
         puts(EINVALID_IVA);
         return 0;
     }
@@ -92,7 +92,7 @@ int validateProduct(System *sys, char *ean, char iva, double price, int quantity
         puts(EINVALID_PRICE);
         return 0;
     }
-    if (stock < 0) {
+    if (quantity < 0) {
         puts(EINVALID_QTY);
         return 0;
     }
@@ -156,14 +156,14 @@ void addProduct(System *sys, char *ean, char iva, double price, int quantity,
  * @param sys   system state
  * @param buf   input line
  */
-void commandP(System *sys, char *buf) {
+void commandP(System *sys, char buf[MAXLINE]) {
     char ean[MAXEAN];
     char iva;
     double price;
     int quantity;
     char description[MAXDESC];
 
-    sscanf(buf, "%*s %s %c %lf %d %[^\n]", ean, &iva, &price, &quantity, description);
+    sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity, description);
 
     if (validateProduct(sys, ean, iva, price, quantity, description)) {
         int idx_product = findProduct(sys->products, sys->total_products, ean);
@@ -206,20 +206,24 @@ int getProductSoldAndInCart(System *sys, int idx_product) {
 
 
 void listAllProducts(System *sys) {
-    int i, soldAndInCart;
+    int i, soldAndInCart, found = 0;
     for (i = 0; i < sys->total_products; i++) {
         if (sys->products[i].stock > 0) {
             soldAndInCart = getProductSoldAndInCart(sys, i);
             printProduct(&sys->products[i], soldAndInCart);
+            found = 1;
         }
     }
+    if (!found)
+        puts("*: no such product");
 }
 
 
 void listProductsByPattern(System *sys, char *pattern) {
     int i, soldAndInCart, found = 0;
     for (i = 0; i < sys->total_products; i++) {
-        if (sys->products[i].stock > 0 && verifyWildcard(pattern, sys->products[i].ean)) {
+        if (sys->products[i].stock > 0 
+            && verifyWildcard(pattern, sys->products[i].ean)) {
             soldAndInCart = getProductSoldAndInCart(sys, i);
             printProduct(&sys->products[i], soldAndInCart);
             found = 1;
@@ -227,4 +231,17 @@ void listProductsByPattern(System *sys, char *pattern) {
     }
     if (!found)
         printf("%s: %s\n", pattern, ENO_PRODUCT);
+}
+
+void commandL(System *sys, char buf[MAXLINE]) {
+    char *pattern = strtok(buf + 2, " \n");
+
+    if (pattern == NULL || strcmp(pattern, "*") == 0)
+        listAllProducts(sys);
+    else {
+        while (pattern != NULL) {
+            listProductsByPattern(sys, pattern);
+            pattern = strtok(NULL, " \n");
+        }
+    }
 }

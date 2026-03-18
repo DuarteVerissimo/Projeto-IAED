@@ -57,7 +57,7 @@ typedef struct {
     int num_invoices;
     int next_invoice_number;
     
-    int taxas_iva[MAXIVA];  //mudar para ingles
+    int iva_taxes[MAXIVA];  //mudar para ingles
 } System;
 
 #endif
