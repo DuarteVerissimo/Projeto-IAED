@@ -27,7 +27,12 @@ int main(int argc, char *argv[]) {
     }
     while (fgets(buf, MAXLINE, stdin)) {
         switch (buf[0]) {
-			case 'q': /* libertar memória */ return 0;
+			case 'q': 
+                for (int i = 0; i  < sys.num_invoices; i++) 
+                    free(sys.invoices[i].client_name);
+                free(sys.invoices);
+                free(sys.cart);    
+                return 0;
 			case 'p': commandP(&sys, buf); break;
 			case 'l': commandL(&sys, buf); break;
 			case 'a': commandA(&sys, buf); break;

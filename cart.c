@@ -106,7 +106,7 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
     }
 
     int idx_cart = findProductInCart(sys, idx_product);
-    if (quantity < 0 && (sys->cart[idx_cart].quantity + quantity < 0 || idx_cart == -1)) {
+    if (quantity < 0 && (idx_cart == -1 || sys->cart[idx_cart].quantity + quantity < 0)) {
         puts(EINVALID_QTY);
         return 0;
     }

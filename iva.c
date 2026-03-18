@@ -28,14 +28,14 @@ double calculatePrice(double price, int quantity, int iva_value) {
 
 void commandR(System *sys, char buf[MAXLINE]) {
     char ean_product[MAXEAN];
-    if (sscanf(buf + 2, "%s", ean_product) == 2) {
+    if (sscanf(buf + 2, "%s", ean_product) == 1) {
         if (!verifyEan(ean_product)) {
             puts(EINVALID_EAN);
             return;
         }
         int idx_product = findProduct(sys, ean_product);
         if (idx_product == -1) {
-            printf("%s: %s\n", ean_product, EINVALID_EAN);
+            printf("%s: %s\n", ean_product, ENO_PRODUCT);
             return;
         }
         int soldAndInCart;
