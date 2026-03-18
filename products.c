@@ -51,16 +51,11 @@ int verifyWildcard(char *pattern, char *ean) {
         return 0;
 }
 
-/** Find a product by its EAN code
- * @param products          array of products
- * @param total_products    total number of products
- * @param ean               EAN code to search for
- * @return                  index of product if found, -1 otherwise
- */
-int findProduct(Product products[MAXPRODUCTS], int total_products, char *ean) {
+
+int findProduct(System *sys, char *ean) {
     int i;
-    for (i = 0; i < total_products; i++) {
-        if (!strcmp(products[i].ean, ean))
+    for (i = 0; i < sys->total_products; i++) {
+        if (!strcmp(sys->products[i].ean, ean))
             return i;
     }
     return -1;
@@ -118,7 +113,7 @@ int validateProduct(System *sys, char *ean, char iva, double price, int quantity
  */
 void addProduct(System *sys, char *ean, char iva, double price, int quantity,
         char *description, int idx_cart) {
-    int idx_product = findProduct(sys->products, sys->total_products, ean);
+    int idx_product = findProduct(sys, ean);
 
     if (idx_product != -1) {
         if (idx_cart != -1 && price != sys->products[idx_product].price) {
@@ -166,8 +161,8 @@ void commandP(System *sys, char buf[MAXLINE]) {
     sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity, description);
 
     if (validateProduct(sys, ean, iva, price, quantity, description)) {
-        int idx_product = findProduct(sys->products, sys->total_products, ean);
-        int idx_cart = findProductInCart(sys->cart, sys->cart_size, idx_product);
+        int idx_product = findProduct(sys, ean);
+        int idx_cart = findProductInCart(sys, idx_product);
         addProduct(sys,  ean, iva, price, quantity, description, idx_cart);
     }
 }
@@ -196,7 +191,7 @@ void printProduct(Product *product, int soldAndInCart) {
  * @return              total quantity sold and in cart
  */
 int getProductSoldAndInCart(System *sys, int idx_product) {
-    int idx_cart = findProductInCart(sys->cart, sys->cart_size, idx_product);
+    int idx_cart = findProductInCart(sys, idx_product);
     
     if (idx_cart != -1)
         return  sys->products[idx_product].sold + sys->cart[idx_cart].quantity;

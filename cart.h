@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int findProductInCart(CartItem *cart, int cart_size, int product_idx);
+int findProductInCart(System *sys, int product_idx);
 void addToCart(System *sys, int idx_product, int quantity);
 void removeFromCart(System *sys, int idx_cart);
 void printCartItem(System *sys, int idx_cart);

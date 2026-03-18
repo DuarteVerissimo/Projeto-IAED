@@ -11,10 +11,10 @@
  * @param product_idx   product index to search for
  * @return              index in cart if found, -1 otherwise
  */
-int findProductInCart(CartItem *cart, int cart_size, int product_idx) {
+int findProductInCart(System *sys, int product_idx) {
     int i;
-    for (i = 0; i < cart_size; i++) {
-        if (cart[i].product_index == product_idx)
+    for (i = 0; i < sys->cart_size; i++) {
+        if (sys->cart[i].product_index == product_idx)
             return i;
     }
     return -1;
@@ -22,7 +22,7 @@ int findProductInCart(CartItem *cart, int cart_size, int product_idx) {
 
 
 void addToCart(System *sys, int idx_product, int quantity) {
-    int idx_cart = findProductInCart(sys->cart, sys->cart_size, idx_product);
+    int idx_cart = findProductInCart(sys, idx_product);
 
     if (idx_cart != -1)
         sys->cart[idx_cart].quantity += quantity;
@@ -99,13 +99,13 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
         return 0;
     }
 
-    int idx_product = findProduct(sys->products, sys->total_products, product_ean);
+    int idx_product = findProduct(sys, product_ean);
     if (idx_product == -1) {
         printf("%s: %s\n", product_ean, ENO_PRODUCT);
         return 0;
     }
 
-    int idx_cart = findProductInCart(sys->cart, sys->cart_size, idx_product);
+    int idx_cart = findProductInCart(sys, idx_product);
     if (quantity < 0 && (sys->cart[idx_cart].quantity + quantity < 0 || idx_cart == -1)) {
         puts(EINVALID_QTY);
         return 0;
@@ -131,10 +131,8 @@ void commandA(System *sys, char buf[MAXLINE]) {
 	if (num_read >= 1) {
 		if (!validateCartItem(sys, product_ean, quantity))
 			return;
-		int idx_product = findProduct(sys->products,
-			sys->total_products, product_ean);
-		int idx_cart = findProductInCart(sys->cart,
-			sys->cart_size, idx_product);
+		int idx_product = findProduct(sys, product_ean);
+		int idx_cart = findProductInCart(sys, idx_product);
 		sys->products[idx_product].stock -= quantity;		
         if (idx_cart != -1) {
 			sys->cart[idx_cart].quantity += quantity;

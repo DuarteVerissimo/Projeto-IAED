@@ -25,7 +25,7 @@ typedef struct {
 
 int verifyEan(char ean[MAXEAN]);
 int verifyWildcard(char *pattern, char *ean);
-int findProduct(Product products[MAXPRODUCTS], int total_products, char *ean);
+int findProduct(System *sys, char *ean);
 int validateProduct(System *sys, char *ean, char iva, double price, int quantity, char *description);
 void addProduct(System *sys, char *ean, char iva, double price, int stock, char *description, int idx_cart);
 void commandP(System *sys, char buf[MAXLINE]);
