@@ -9,6 +9,52 @@ int findInvoice(System *sys, int number) {
 	return -1;
 }
 
+int verifyNif(char *nif) {
+    int len = strlen(nif), i;
+
+    if (len != 9 )
+        return 0;
+    
+    for (i = 0; i < len; i++) {
+        if (!isdigit(nif[i]))
+            return 0;
+    }
+    return 1;
+}
+
+char *extractName(char *buf) {
+    char *quote_start = strchr(buf, '"');
+    char *quote_end, *name;
+    int len_name;
+    char bufcpy[MAXLINE];
+
+    if (quote_start != NULL) {
+        *quote_end = strchr(quote_start + 1, '"');
+        len_name = quote_end - quote_start - 1;
+        *name = malloc(len_name + 1);
+
+        if (name == NULL) {
+            puts(ENO_MEMORY);
+            exit(0);
+        }
+        strncpy(name, quote_start + 1, len_name);
+        name[len_name] = '\0';
+
+        return name;
+    } else {
+        sscanf(buf, "%s", bufcpy);
+        len_name = strlen(bufcpy);
+        *name = malloc(len_name + 1);
+
+        if (name == NULL) {
+            puts(ENO_MEMORY);
+            exit(0);
+        }
+        strcpy(name, bufcpy);
+        return name;
+    }
+}
+
 
 void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
     sys->invoices = realloc(sizeof(Invoice) * (sys->num_invoices + 1));
@@ -44,15 +90,30 @@ void printInvoice(Invoice invoice) {
 }
 
 
-int readClient(char buf[MAX_LINE], int *nif, char **name) {
-    char fisrt_arg[MAXLINE];
+int readClient(char buf[MAXLINE], int *nif, char **name) {
+    char first_arg[MAXLINE];
     int info_read = sscanf(buf + 2, "%s", first_arg);
 
     if (info_read <= 0) {
         *nif = 999999999;
-        *nome = malloc(strlen("Cliente final") + 1);
-        strcpy(nome, "Cliente final");
+        *name = malloc(strlen("Cliente final") + 1);
+
+        if (*name == NULL) {
+            puts(ENO_MEMORY);
+            exit(0);
+        }   
+        strcpy(*name, "Cliente final");
     } else {
-        
+        if (strcmp(first_arg, "error") == 0)
+            return -1;
+        else if (verifyNif(first_arg)) {
+            *nif = atoi(first_arg);
+            char *rest = buf + 2 + strlen(first_arg);
+            *name = extractName(rest);
+        } else {
+            *nif = 999999999;
+            *name = extractName(buf + 2);
+        }
     }
+    return 1;
 }
