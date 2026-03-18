@@ -245,5 +245,10 @@ void deleteProduct(System *sys, int idx_product) {
     int i;
     for (i = idx_product; i < sys->total_products - 1; i++)
         sys->products[i] = sys->products[i + 1];
-    (sys->total_products)--;
+    sys->total_products--;
+
+    for (i = 0; i < sys->cart_size; i++) {
+        if (sys->cart[i].product_index > idx_product)
+            sys->cart[i].product_index--;
+    }
 }
