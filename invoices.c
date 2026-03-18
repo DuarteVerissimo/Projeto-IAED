@@ -9,6 +9,7 @@ int findInvoice(System *sys, int number) {
 	return -1;
 }
 
+
 void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
     sys->invoices = realloc(sizeof(Invoice) * (sys->num_invoices + 1));
     if (sys->invoices == NULL) {
@@ -25,6 +26,7 @@ void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
     sys->num_invoices++;
 }
 
+
 void deleteInvoice(System *sys, int idx_invoice) {
     int i;
     free(sys->invoices[idx_invoice].client_name);
@@ -33,9 +35,24 @@ void deleteInvoice(System *sys, int idx_invoice) {
     sys->num_invoices--;
 }
 
-printInvoice(Invoice invoice) {
-    printf("%d %.2lf %d\n",
+
+void printInvoice(Invoice invoice) {
+    printf("%d %.2lf %s\n",
         invoice.number,
         invoice.value,
         invoice.client_name);
+}
+
+
+int readClient(char buf[MAX_LINE], int *nif, char **name) {
+    char fisrt_arg[MAXLINE];
+    int info_read = sscanf(buf + 2, "%s", first_arg);
+
+    if (info_read <= 0) {
+        *nif = 999999999;
+        *nome = malloc(strlen("Cliente final") + 1);
+        strcpy(nome, "Cliente final");
+    } else {
+        
+    }
 }
