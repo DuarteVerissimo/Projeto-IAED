@@ -99,9 +99,7 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
         }   
         strcpy(*name, "Cliente final");
     } else {
-        if (strcmp(first_arg, "error") == 0)
-            return -1;
-        else if (verifyNif(first_arg)) {
+        if (verifyNif(first_arg)) {
             *nif = atoi(first_arg);
             char *rest = buf + 2 + strlen(first_arg);
             *name = extractName(rest);
@@ -109,7 +107,21 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
             *nif = 999999999;
             *name = extractName(buf + 2);
         }
-    }
+    }  /* else {
+        char sec_arg[MAXLINE];
+        arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
+        if (arg_read  == 2 && first_arg[0] != '"') {
+            if (!verifyNif(first_arg))
+                printf("%s: %s\n", first_arg, EINVALID_NIF);
+            *nif = atoi(first_arg);
+            char *rest = buf + 2 + strlen(first_arg);
+            *name = extractName(rest);
+        } else {
+            *nif = 999999999;
+            *name = extractName(buf + 2);
+        } */
+    if (strcmp(*name, "error") == 0)
+        return -1;
     return 1;
 }
 

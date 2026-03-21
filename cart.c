@@ -121,7 +121,7 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
 
 void commandA(System *sys, char buf[MAXLINE]) {
 	int quantity = 1;
-	char product_ean[MAXEAN];
+	char product_ean[MAXLINE];
 	int num_read = sscanf(buf + 2, "%d %s", &quantity, product_ean);
 
 	if (num_read == 1) {
