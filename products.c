@@ -253,7 +253,7 @@ void commandL(System *sys, char buf[MAXLINE]) {
 }
 
 void deleteProduct(System *sys, int idx_product) {
-    int i, idx_by_ean;
+    int i, idx_by_ean = 0;
     for (i = 0; i < sys->total_products; i++) {
         if (sys->product_indexes_by_ean[i] == idx_product) {
             idx_by_ean = i;
