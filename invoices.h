@@ -9,11 +9,12 @@
 
 int findInvoice(System *sys, int number);
 int verifyNif(char *nif);
+int validate_name(char *buf);
 char *extractName(char *buf);
+int readClient(char buf[MAXLINE], int *nif, char **name);
 void addInvoice(System *sys, int nif, char *name, double value, int num_items);
 void deleteInvoice(System *sys, int idx_invoice);
 void printInvoiceCommandF(Invoice invoice);
-int readClient(char buf[MAXLINE], int *nif, char **name);
 void commandF(System *sys, char buf[MAXLINE]);
 void printInvoiceCommandC(Invoice invoice);
 void listClientInvoices(System *sys, char *name);

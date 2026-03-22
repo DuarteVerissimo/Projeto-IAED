@@ -14,7 +14,7 @@ int findInvoice(System *sys, int number) {
 
 int verifyNif(char *nif) {
     int len = strlen(nif), i;
-
+    if (nif[0] == '0') return 0;
     if (len != 9 )
         return 0;
     
@@ -25,6 +25,31 @@ int verifyNif(char *nif) {
     return 1;
 }
 
+
+int validate_name(char *buf) {
+    int count = 0, i = 0;
+    while(buf[i] != '\0') {
+        if (buf[i] == '"')
+            count++;
+        i++;
+    }
+    if (!(count == 0 || count == 2))
+        return 0;
+    if (count == 0) {
+        if(!isalpha(buf[0]))
+            return 0;
+        for (i = 0; buf[i] != '\0'; i++) {
+            if (buf[i] == ' ' || buf[i] == '\t')
+                return 0;
+        }
+    } else if (count == 2) {
+        if (buf[0] != '"' || buf[i - 1] != '"' || !isalpha(buf[1]))
+            return  0;
+    }
+    return 1;
+}
+
+
 char *extractName(char *buf) {
     char *quote_start = strchr(buf, '"');
     char *quote_end, *name;
@@ -33,22 +58,33 @@ char *extractName(char *buf) {
 
     if (quote_start != NULL) {
         quote_end = strchr(quote_start + 1, '"');
+        if (quote_end == NULL || !isalpha(quote_start[1])) {
+            puts (EINVALID_NAME);
+            return NULL;
+        }
         len_name = quote_end - quote_start - 1;
         name = malloc(len_name + 1);
-
         if (name == NULL) {
             puts(ENO_MEMORY);
             exit(0);
         }
         strncpy(name, quote_start + 1, len_name);
         name[len_name] = '\0';
-
         return name;
     } else {
+        /*int i;
+        for (i = 0; buf[i] != '\0'; i++) {
+            if (buf[i] == ' ' || buf[i] == '\t') {
+                puts(EINVALID_NAME);
+            }
+        }*/
         sscanf(buf, "%s", bufcpy);
+        if (!isalpha(bufcpy[0])) {
+            puts(EINVALID_NAME);
+            return NULL;
+        }        
         len_name = strlen(bufcpy);
         name = malloc(len_name + 1);
-
         if (name == NULL) {
             puts(ENO_MEMORY);
             exit(0);
@@ -56,6 +92,47 @@ char *extractName(char *buf) {
         strcpy(name, bufcpy);
         return name;
     }
+}
+
+
+int readClient(char buf[MAXLINE], int *nif, char **name) {
+    char first_arg[MAXLINE], sec_arg[MAXLINE];
+    int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
+
+    if (arg_read <= 0) {
+        *nif = 999999999;
+        *name = malloc(strlen("Cliente final") + 1);
+        if (*name == NULL) {
+            puts(ENO_MEMORY);
+            exit(0);
+        }
+        strcpy(*name, "Cliente final");
+        return 1;
+    } else {
+        if (first_arg[0] == '"' || arg_read == 1) {
+            *nif = 999999999;
+            *name = extractName(buf + 2);
+        } else{
+            if (!verifyNif(first_arg)) {
+                printf("%s: %s\n", first_arg, EINVALID_NIF);
+                return 0;
+            }
+            *nif = atoi(first_arg);
+            if (arg_read == 1) {
+                *name = malloc(strlen("Cliente final") + 1);
+                if (*name == NULL) {
+                    puts(ENO_MEMORY);
+                    exit(0);
+                }
+                strcpy(*name, "Cliente final");
+            } else
+                *name = extractName(buf + 2 + strlen(first_arg));
+        }
+    }
+    if (*name == NULL) return 0;
+    if (strcmp(*name, "error") == 0)
+        return -1;
+    return 1;
 }
 
 
@@ -84,46 +161,6 @@ void deleteInvoice(System *sys, int idx_invoice) {
     sys->num_invoices--;
 }
 
-
-int readClient(char buf[MAXLINE], int *nif, char **name) {
-    char first_arg[MAXLINE];
-    int arg_read = sscanf(buf + 2, "%s", first_arg);
-
-    if (arg_read <= 0) {
-        *nif = 999999999;
-        *name = malloc(strlen("Cliente final") + 1);
-
-        if (*name == NULL) {
-            puts(ENO_MEMORY);
-            exit(0);
-        }   
-        strcpy(*name, "Cliente final");
-    } else {
-        if (verifyNif(first_arg)) {
-            *nif = atoi(first_arg);
-            char *rest = buf + 2 + strlen(first_arg);
-            *name = extractName(rest);
-        } else {
-            *nif = 999999999;
-            *name = extractName(buf + 2);
-        }
-    }  /* else {
-        char sec_arg[MAXLINE];
-        arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
-        if (arg_read  == 2 && first_arg[0] != '"') {
-            if (!verifyNif(first_arg))
-                printf("%s: %s\n", first_arg, EINVALID_NIF);
-            *nif = atoi(first_arg);
-            char *rest = buf + 2 + strlen(first_arg);
-            *name = extractName(rest);
-        } else {
-            *nif = 999999999;
-            *name = extractName(buf + 2);
-        } */
-    if (strcmp(*name, "error") == 0)
-        return -1;
-    return 1;
-}
 
 void printInvoiceCommandF(Invoice invoice) {
     printf("%d %.2lf %d\n",
