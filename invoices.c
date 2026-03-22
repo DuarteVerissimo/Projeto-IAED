@@ -144,6 +144,7 @@ void commandF(System *sys, char buf[MAXLINE]) {
     char *name;
     int clientInfo = readClient(buf, &nif, &name);
     if (clientInfo == -1) {
+        free(name);
         for (i = 0; i < sys->cart_size; i++)
             sys->products[sys->cart[i].product_index].stock += sys->cart[i].quantity;
         emptyCart(sys);
@@ -245,7 +246,7 @@ void commandD(System *sys, char buf[MAXLINE]) {
         }
         int quantity = atoi(sec_arg);
 
-        if (quantity < 0) {
+        if (quantity <= 0) {
             puts(EINVALID_QTY);
             return;
         }

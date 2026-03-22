@@ -121,6 +121,7 @@ void addProduct(System *sys, char *ean, char iva, double price, int quantity,
         sys->products[idx_product].stock += quantity;
         sys->products[idx_product].iva = iva;        
         sys->products[idx_product].price = price;
+        strcpy(sys->products[idx_product].description, description);
         printf("%d\n", sys->products[idx_product].stock);
 
 
