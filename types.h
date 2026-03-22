@@ -7,6 +7,10 @@
 #define MAXIVA 26
 #define MAXLINE 65535
 
+#define DEFAULT_NIF 999999999
+#define DEFAULT_CLIENT_NAME "Cliente final"
+#define NIF_LENGTH 9
+
 #define EINVALID_EAN    "invalid ean"
 #define EINVALID_IVA    "invalid iva"
 #define EINVALID_PRICE  "invalid price"

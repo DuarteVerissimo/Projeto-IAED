@@ -15,7 +15,7 @@ int findInvoice(System *sys, int number) {
 int verifyNif(char *nif) {
     int len = strlen(nif), i;
     if (nif[0] == '0') return 0;
-    if (len != 9 )
+    if (len != NIF_LENGTH)
         return 0;
     
     for (i = 0; i < len; i++) {
@@ -70,17 +70,17 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
     int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
 
     if (arg_read <= 0) {
-        *nif = 999999999;
-        *name = malloc(strlen("Cliente final") + 1);
+        *nif = DEFAULT_NIF;
+        *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
         if (*name == NULL) {
             puts(ENO_MEMORY);
             exit(0);
         }
-        strcpy(*name, "Cliente final");
+        strcpy(*name, DEFAULT_CLIENT_NAME);
         return 1;
     } else {
         if (first_arg[0] == '"' || arg_read == 1) {
-            *nif = 999999999;
+            *nif = DEFAULT_NIF;
             *name = extractName(buf + 2);
         } else{
             if (!verifyNif(first_arg)) {
@@ -89,12 +89,12 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
             }
             *nif = atoi(first_arg);
             if (arg_read == 1) {
-                *name = malloc(strlen("Cliente final") + 1);
+                *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
                 if (*name == NULL) {
                     puts(ENO_MEMORY);
                     exit(0);
                 }
-                strcpy(*name, "Cliente final");
+                strcpy(*name, DEFAULT_CLIENT_NAME);
             } else
                 *name = extractName(buf + 2 + strlen(first_arg));
         }
