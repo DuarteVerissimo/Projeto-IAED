@@ -53,11 +53,6 @@ int verifyWildcard(char *pattern, char *ean) {
 
 
 int findProduct(System *sys, char *ean) {
-    /*int i;
-    for (i = 0; i < sys->total_products; i++) {
-        if (!strcmp(sys->products[i].ean, ean))
-            return i;
-    }*/
     int low = 0, high = sys->total_products - 1, mid, comp;
     while (low <= high) {
         mid = low + (high - low) / 2;
