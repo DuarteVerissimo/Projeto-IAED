@@ -26,30 +26,6 @@ int verifyNif(char *nif) {
 }
 
 
-int validate_name(char *buf) {
-    int count = 0, i = 0;
-    while(buf[i] != '\0') {
-        if (buf[i] == '"')
-            count++;
-        i++;
-    }
-    if (!(count == 0 || count == 2))
-        return 0;
-    if (count == 0) {
-        if(!isalpha(buf[0]))
-            return 0;
-        for (i = 0; buf[i] != '\0'; i++) {
-            if (buf[i] == ' ' || buf[i] == '\t')
-                return 0;
-        }
-    } else if (count == 2) {
-        if (buf[0] != '"' || buf[i - 1] != '"' || !isalpha(buf[1]))
-            return  0;
-    }
-    return 1;
-}
-
-
 char *extractName(char *buf) {
     char *quote_start = strchr(buf, '"');
     char *quote_end, *name;
@@ -72,12 +48,6 @@ char *extractName(char *buf) {
         name[len_name] = '\0';
         return name;
     } else {
-        /*int i;
-        for (i = 0; buf[i] != '\0'; i++) {
-            if (buf[i] == ' ' || buf[i] == '\t') {
-                puts(EINVALID_NAME);
-            }
-        }*/
         sscanf(buf, "%s", bufcpy);
         if (!isalpha(bufcpy[0])) {
             puts(EINVALID_NAME);
