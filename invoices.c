@@ -107,10 +107,9 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
 
 
 void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
-    sys->invoices = realloc(sys->invoices, sizeof(Invoice) * (sys->num_invoices + 1));
-    if (sys->invoices == NULL) {
-        puts(ENO_MEMORY);
-        exit(0);
+    if (sys->num_invoices >= sys->max_invoices) {
+        sys->max_invoices *= 2;
+        sys->invoices = realloc(sys->invoices, sizeof(Invoice) * sys->max_invoices);
     }
     sys->invoices[sys->num_invoices].nif = nif;
     sys->invoices[sys->num_invoices].num_items = num_items;
@@ -185,7 +184,8 @@ void listClientInvoices(System *sys, char *name) {
 
 void listAllInvoices(System *sys) {
     int i;
-	sortInvoices(sys);
+	//sortInvoices(sys);
+    sortInvoices2(sys, 0, sys->num_invoices - 1);
 	for (i = 0; i < sys->num_invoices; i++)
 		printInvoiceCommandC(sys->invoices[i]);
 }
@@ -205,6 +205,35 @@ void sortInvoices(System *sys) {
         }
         if (done) return;
     }
+}
+
+void sortInvoices2(System *sys, int start, int end) {
+    int i;
+    
+    if (start >= end)
+        return;
+    i = partition(sys, start, end);
+    sortInvoices2(sys, start, i - 1);
+    sortInvoices2(sys, i + 1, end);
+}
+
+int partition(System *sys, int start, int end) {
+    int i = start - 1;
+    int j;
+    char *pivot = sys->invoices[end].client_name;
+
+    for (j = start; j < end; j++) {
+        if (strcmp(sys->invoices[j].client_name, pivot) < 0) {
+            i++;
+            Invoice aux = sys->invoices[i];
+            sys->invoices[i] = sys->invoices[j];
+            sys->invoices[j] = aux;
+        }
+    }
+    Invoice aux = sys->invoices[i + 1];
+    sys->invoices[i + 1] = sys->invoices[end];
+    sys->invoices[end] = aux;
+    return i + 1;
 }
 
 void commandC(System *sys, char buf[MAXLINE]) {

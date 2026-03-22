@@ -19,6 +19,8 @@ void printInvoiceCommandC(Invoice invoice);
 void listClientInvoices(System *sys, char *name);
 void listAllInvoices(System *sys);
 void sortInvoices(System *sys);
+void sortInvoices2(System *sys, int start, int end);
+int partition(System *sys, int start, int end);
 void commandC(System *sys, char buf[MAXLINE]);
 void commandD(System *sys, char buf[MAXLINE]);
 

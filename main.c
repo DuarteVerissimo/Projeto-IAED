@@ -13,6 +13,8 @@ int main(int argc, char *argv[]) {
     char buf[MAXLINE];
     System sys = {0};
     sys.next_invoice_number = 1;
+    sys.max_invoices = 100;
+    sys.invoices = malloc(sizeof(Invoice) * sys.max_invoices);
 
     initIva(sys.iva_taxes);
     if (argc > 1) {
