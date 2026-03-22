@@ -214,7 +214,8 @@ void commandC(System *sys, char buf[MAXLINE]) {
     if (arg_read <= 0) {
         listAllInvoices(sys);
     } else {
-        char *name = extractName(first_arg);
+        char *name = extractName(buf + 2);
+        if (name == NULL) return;
         listClientInvoices(sys, name);
         free(name);
     }
