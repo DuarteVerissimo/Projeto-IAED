@@ -49,6 +49,8 @@ typedef struct {
 typedef struct {
     Product products[MAXPRODUCTS];
     int total_products;
+
+    int product_indexes_by_ean[MAXPRODUCTS]; 
     
     CartItem *cart;
     int cart_size;

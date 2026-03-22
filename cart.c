@@ -64,24 +64,11 @@ void printCartItem(System *sys, int idx_cart) {
 
 
 void listCart(System *sys) {
-    int i, j;
-    for (i = 0; i < sys->cart_size; i++) {
-        int done = 1;
-        for(j = 0; j < sys->cart_size - 1 - i; j++) {
-            if (strcmp(sys->cart[j].ean, sys->cart[j + 1].ean) > 0) {
-                CartItem aux = sys->cart[j];
-                sys->cart[j] = sys->cart[j + 1];
-                sys->cart[j + 1] = aux;
-                done = 0;
-            }
-        }
-        if (done)
-            break;
-    }
-
-    for (i = 0; i < sys->cart_size; i++) {
-        if (sys->cart[i].quantity > 0)
-            printCartItem(sys, i);
+    int i, idx_cart;
+    for (i = 0; i < sys->total_products; i++) {
+        idx_cart = findProductInCart(sys, sys->product_indexes_by_ean[i]);
+        if (idx_cart != -1 && sys->cart[idx_cart].quantity > 0)
+            printCartItem(sys, idx_cart);
     }
 }
 
