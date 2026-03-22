@@ -184,46 +184,30 @@ void listClientInvoices(System *sys, char *name) {
 
 void listAllInvoices(System *sys) {
     int i;
-	//sortInvoices(sys);
-    sortInvoices2(sys, 0, sys->num_invoices - 1);
+    sortInvoices(sys, 0, sys->num_invoices - 1);
 	for (i = 0; i < sys->num_invoices; i++)
 		printInvoiceCommandC(sys->invoices[i]);
 }
 
 
-void sortInvoices(System *sys) {
-    int i, j, done;
-    for (i = 0; i < sys->num_invoices; i++) {
-        done = 1;
-        for (j = 0; j < sys->num_invoices - 1 - i; j++) {
-            if (strcmp(sys->invoices[j].client_name, sys->invoices[j + 1].client_name) > 0) {
-                Invoice aux = sys->invoices[j];
-                sys->invoices[j] = sys->invoices[j + 1];
-                sys->invoices[j + 1] = aux;
-                done = 0;
-            }
-        }
-        if (done) return;
-    }
-}
-
-void sortInvoices2(System *sys, int start, int end) {
+void sortInvoices(System *sys, int start, int end) {
     int i;
     
     if (start >= end)
         return;
     i = partition(sys, start, end);
-    sortInvoices2(sys, start, i - 1);
-    sortInvoices2(sys, i + 1, end);
+    sortInvoices(sys, start, i - 1);
+    sortInvoices(sys, i + 1, end);
 }
 
 int partition(System *sys, int start, int end) {
-    int i = start - 1;
-    int j;
+    int i = start - 1, j, comp;
     char *pivot = sys->invoices[end].client_name;
+    int pivot_number = sys->invoices[end].number;
 
     for (j = start; j < end; j++) {
-        if (strcmp(sys->invoices[j].client_name, pivot) < 0) {
+        comp = strcmp(sys->invoices[j].client_name, pivot);
+        if (comp < 0 || (comp == 0 && sys->invoices[j].number < pivot_number)) {
             i++;
             Invoice aux = sys->invoices[i];
             sys->invoices[i] = sys->invoices[j];
