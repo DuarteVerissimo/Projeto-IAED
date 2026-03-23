@@ -8,6 +8,7 @@
 #include <string.h>
 
 void initIva(int iva_taxes[MAXIVA]);
+void initDefaultIva(int iva_taxes[MAXIVA]);
 double calculatePrice(double price, int quantity, int iva_value);
 void commandR(System *sys, char buf[MAXLINE]);
 

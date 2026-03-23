@@ -21,17 +21,14 @@ int main(int argc, char *argv[]) {
         FILE *f = fopen(argv[1], "r");
 
         if (f != NULL) {
-            sys.iva_taxes['A' - 'A'] = -1;
-            sys.iva_taxes['B' - 'A'] = -1;
-            sys.iva_taxes['C' - 'A'] = -1;
-            sys.iva_taxes['D' - 'A'] = -1;
             int value_iva;
             char letter_iva;
             while (fscanf(f, " %c %d", &letter_iva, &value_iva) == 2)
                 sys.iva_taxes[letter_iva - 'A'] = value_iva;
         }
         fclose(f);
-    }
+    } else
+        initDefaultIva(sys.iva_taxes);
     while (fgets(buf, MAXLINE, stdin)) {
         switch (buf[0]) {
 			case 'q': 

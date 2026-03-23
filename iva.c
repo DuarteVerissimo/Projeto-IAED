@@ -6,13 +6,15 @@
 
 void initIva(int iva_taxes[MAXIVA]) {
     int i;
+    for (i = 'A' - 'A'; i < MAXIVA; i++)
+        iva_taxes[i] = - 1;
+}
+
+void initDefaultIva(int iva_taxes[MAXIVA]) {
     iva_taxes['A' - 'A'] = 0;
     iva_taxes['B' - 'A'] = 6;
     iva_taxes['C' - 'A'] = 13;
     iva_taxes['D' - 'A'] = 23;
-
-    for (i = 'E' - 'A'; i < MAXIVA; i++)
-        iva_taxes[i] = - 1;
 }
 
 /** Calculate price with IVA and symmetric rounding
