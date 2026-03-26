@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <string.h>
 
+void checkMemory(void *ptr);
 int findProductInCart(System *sys, int product_idx);
 void addToCart(System *sys, int idx_product, int quantity);
 void removeFromCart(System *sys, int idx_cart);

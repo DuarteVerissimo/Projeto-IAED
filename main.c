@@ -15,15 +15,14 @@ int main(int argc, char *argv[]) {
     sys.next_invoice_number = 1;
     sys.max_invoices = 100;
     sys.invoices = malloc(sizeof(Invoice) * sys.max_invoices);
+    checkMemory(sys.invoices);
 
     initIva(sys.iva_taxes);
     openIvaFile(&sys, argc, argv);
     while (fgets(buf, MAXLINE, stdin)) {
         switch (buf[0]) {
 			case 'q': 
-                for (int i = 0; i  < sys.num_invoices; i++) 
-                    free(sys.invoices[i].client_name);
-                free(sys.invoices);
+                destroyInvoices(&sys);
                 free(sys.cart);    
                 return 0;
 			case 'p': commandP(&sys, buf); break;

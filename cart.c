@@ -4,6 +4,12 @@
 #include "invoices.h"
 #include "iva.h"
 
+void checkMemory(void *ptr) {
+    if (ptr == NULL) {
+        puts(ENO_MEMORY);
+        exit(0);
+    }
+}
 
 /** Find a product in the cart by its product index
  * @param cart          array of cart items
@@ -29,10 +35,7 @@ void addToCart(System *sys, int idx_product, int quantity) {
     else {
         sys->cart = realloc(sys->cart, sizeof(CartItem) * (sys->cart_size + 1));
 
-        if (sys->cart == NULL) {
-            puts(ENO_MEMORY);
-            exit(0);
-        }
+        checkMemory(sys->cart);
 
         sys->cart[sys->cart_size].product_index = idx_product;
         sys->cart[sys->cart_size].quantity = quantity;

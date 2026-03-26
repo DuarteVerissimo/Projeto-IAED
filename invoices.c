@@ -40,10 +40,7 @@ char *extractName(char *buf) {
         }
         len_name = quote_end - quote_start - 1;
         name = malloc(len_name + 1);
-        if (name == NULL) {
-            puts(ENO_MEMORY);
-            exit(0);
-        }
+        checkMemory(name);
         strncpy(name, quote_start + 1, len_name);
         name[len_name] = '\0';
         return name;
@@ -55,10 +52,7 @@ char *extractName(char *buf) {
         }        
         len_name = strlen(bufcpy);
         name = malloc(len_name + 1);
-        if (name == NULL) {
-            puts(ENO_MEMORY);
-            exit(0);
-        }
+        checkMemory(name);
         strcpy(name, bufcpy);
         return name;
     }
@@ -72,10 +66,7 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
     if (arg_read <= 0) {
         *nif = DEFAULT_NIF;
         *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
-        if (*name == NULL) {
-            puts(ENO_MEMORY);
-            exit(0);
-        }
+        checkMemory(*name);
         strcpy(*name, DEFAULT_CLIENT_NAME);
         return 1;
     } else {
@@ -90,10 +81,7 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
             *nif = atoi(first_arg);
             if (arg_read == 1) {
                 *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
-                if (*name == NULL) {
-                    puts(ENO_MEMORY);
-                    exit(0);
-                }
+                checkMemory(*name);
                 strcpy(*name, DEFAULT_CLIENT_NAME);
             } else
                 *name = extractName(buf + 2 + strlen(first_arg));
@@ -283,4 +271,11 @@ void commandD(System *sys, char buf[MAXLINE]) {
             sys->invoices[idx_invoice].client_name);
         deleteInvoice(sys, idx_invoice);
     }
+}
+
+void destroyInvoices(System *sys) {
+    int i;
+    for (i = 0; i < sys->num_invoices; i++)
+        free(sys->invoices[i].client_name);
+    free(sys->invoices);
 }
