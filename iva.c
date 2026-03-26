@@ -60,3 +60,18 @@ void commandR(System *sys, char buf[MAXLINE]) {
         }
     }
 }
+
+void openIvaFile(System *sys, int argc, char *argv[]) {
+    if (argc > 1) {
+        FILE *f = fopen(argv[1], "r");
+
+        if (f != NULL) {
+            int value_iva;
+            char letter_iva;
+            while (fscanf(f, " %c %d", &letter_iva, &value_iva) == 2)
+                sys->iva_taxes[letter_iva - 'A'] = value_iva;
+            fclose(f);
+        }
+    } else
+        initDefaultIva(sys->iva_taxes);
+}

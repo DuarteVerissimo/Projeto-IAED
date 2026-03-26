@@ -17,18 +17,7 @@ int main(int argc, char *argv[]) {
     sys.invoices = malloc(sizeof(Invoice) * sys.max_invoices);
 
     initIva(sys.iva_taxes);
-    if (argc > 1) {
-        FILE *f = fopen(argv[1], "r");
-
-        if (f != NULL) {
-            int value_iva;
-            char letter_iva;
-            while (fscanf(f, " %c %d", &letter_iva, &value_iva) == 2)
-                sys.iva_taxes[letter_iva - 'A'] = value_iva;
-        }
-        fclose(f);
-    } else
-        initDefaultIva(sys.iva_taxes);
+    openIvaFile(&sys, argc, argv);
     while (fgets(buf, MAXLINE, stdin)) {
         switch (buf[0]) {
 			case 'q': 
