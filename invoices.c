@@ -34,7 +34,7 @@ char *extractName(char *buf) {
 
     if (quote_start != NULL) {
         quote_end = strchr(quote_start + 1, '"');
-        if (quote_end == NULL || !isalpha(quote_start[1])) {
+        if (quote_end == NULL || !(isalpha(quote_start[1]) || (unsigned char)quote_start[1] >= 128)) {
             puts (EINVALID_NAME);
             return NULL;
         }
@@ -46,7 +46,7 @@ char *extractName(char *buf) {
         return name;
     } else {
         sscanf(buf, "%s", bufcpy);
-        if (!isalpha(bufcpy[0])) {
+        if (!(isalpha(bufcpy[0]) || (unsigned char)isalpha(bufcpy[0]) >= 128)) {
             puts(EINVALID_NAME);
             return NULL;
         }        
