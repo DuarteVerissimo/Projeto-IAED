@@ -106,51 +106,43 @@ int validateProduct(System *sys, char *ean, char iva, double price, int quantity
     return 1;
 }
 
-
-
-void addProduct(System *sys, char *ean, char iva, double price, int quantity,
-        char *description, int idx_cart) {
-    int idx_product = findProduct(sys, ean);
-
-    if (idx_product != -1) {
-        if (idx_cart != -1 && price != sys->products[idx_product].price) {
-            puts(EPRODUCT_IN_USE);
-            return;
-        }
-
-        sys->products[idx_product].stock += quantity;
-        sys->products[idx_product].iva = iva;        
-        sys->products[idx_product].price = price;
-        strcpy(sys->products[idx_product].description, description);
-        printf("%d\n", sys->products[idx_product].stock);
-
-
+void updateProduct(System *sys, char iva, double price, int quantity, char *description, int idx_cart, int idx_product) {
+    if (idx_cart != -1 && price != sys->products[idx_product].price) {
+        puts(EPRODUCT_IN_USE);
         return;
     }
-    else {
-        int i = sys->total_products - 1;
-        if (sys->total_products >= MAXPRODUCTS) {
-            puts(EINVALID_PROD);
-            return;
-        }
-
-        strcpy(sys->products[sys->total_products].description, description);
-        strcpy(sys->products[sys->total_products].ean, ean);
-        sys->products[sys->total_products].iva = iva;
-        sys->products[sys->total_products].number = sys->total_products;
-        sys->products[sys->total_products].price = price;
-        sys->products[sys->total_products].sold = 0;
-        sys->products[sys->total_products].stock = quantity;
-        
-        while (i >= 0 && strcmp(ean, sys->products[sys->product_indexes_by_ean[i]].ean) < 0) {
-            sys->product_indexes_by_ean[i + 1] = sys->product_indexes_by_ean[i];
-            i--;
-        }
-        sys->product_indexes_by_ean[i + 1] = sys->total_products;
-
-        printf("%d\n", sys->products[sys->total_products].stock);
-        (sys->total_products)++;
+    
+    sys->products[idx_product].stock += quantity;
+    sys->products[idx_product].iva = iva;        
+    sys->products[idx_product].price = price;
+    strcpy(sys->products[idx_product].description, description);
+    printf("%d\n", sys->products[idx_product].stock);
     }
+
+void createProduct(System *sys,  char *ean, char iva, double price, int quantity, char *description) {
+    int i = sys->total_products - 1;
+
+    if (sys->total_products >= MAXPRODUCTS) {
+        puts(EINVALID_PROD);
+        return;
+    }
+
+    strcpy(sys->products[sys->total_products].description, description);
+    strcpy(sys->products[sys->total_products].ean, ean);
+    sys->products[sys->total_products].iva = iva;
+    sys->products[sys->total_products].number = sys->total_products;
+    sys->products[sys->total_products].price = price;
+    sys->products[sys->total_products].sold = 0;
+    sys->products[sys->total_products].stock = quantity;
+
+    while (i >= 0 && strcmp(ean, sys->products[sys->product_indexes_by_ean[i]].ean) < 0) {
+        sys->product_indexes_by_ean[i + 1] = sys->product_indexes_by_ean[i];
+        i--;
+    }
+    sys->product_indexes_by_ean[i + 1] = sys->total_products;
+
+    printf("%d\n", sys->products[sys->total_products].stock);
+    (sys->total_products)++;
 }
 
 
@@ -169,8 +161,14 @@ void commandP(System *sys, char buf[MAXLINE]) {
 
     if (validateProduct(sys, ean, iva, price, quantity, description)) {
         int idx_product = findProduct(sys, ean);
-        int idx_cart = findProductInCart(sys, idx_product);
-        addProduct(sys,  ean, iva, price, quantity, description, idx_cart);
+        
+        if (idx_product != -1) {
+            int idx_cart = findProductInCart(sys, idx_product);
+            updateProduct(sys, iva, price, quantity, description, idx_cart, idx_product);     
+        } else {
+            createProduct(sys, ean, iva, price, quantity, description);
+        }
+
     }
 }
 

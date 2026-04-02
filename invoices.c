@@ -225,6 +225,41 @@ void commandC(System *sys, char buf[MAXLINE]) {
     }
 }
 
+void commandDProduct(System *sys, char ean[MAXLINE], int quantity) {
+    int idx_product = findProduct(sys, ean);
+    int idx_cart = findProductInCart(sys, idx_product);
+
+    if (idx_product == -1) {
+        printf("%s: %s\n", ean, ENO_PRODUCT);
+        return;
+    }
+
+    if (idx_cart != -1 && sys->cart[idx_cart].quantity > 0) {
+        puts(EPRODUCT_IN_USE);
+        return;
+    }
+
+    int final_stock = sys->products[idx_product].stock - quantity;
+    if (final_stock < 0) {
+        puts(EINVALID_QTY);
+        return;
+    }
+
+    sys->products[idx_product].stock = final_stock;
+    printf("%d %s\n", final_stock, sys->products[idx_product].description);
+
+    if (final_stock == 0)
+        deleteProduct(sys, idx_product);
+}
+
+void printAndDeleteInvoice(System *sys, int idx_invoice) {
+    printf("%.2lf %d %s\n",
+        sys->invoices[idx_invoice].value,
+        sys->invoices[idx_invoice].nif,
+        sys->invoices[idx_invoice].client_name);
+    deleteInvoice(sys, idx_invoice);
+}
+
 void commandD(System *sys, char buf[MAXLINE]) {
     char first_arg[MAXLINE], sec_arg[MAXLINE];
     int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
@@ -234,32 +269,14 @@ void commandD(System *sys, char buf[MAXLINE]) {
             puts(EINVALID_EAN);
             return;
         }
-        int quantity = atoi(sec_arg);
 
+        int quantity = atoi(sec_arg);
         if (quantity <= 0) {
             puts(EINVALID_QTY);
             return;
         }
-        int idx_product = findProduct(sys, first_arg);
-        if (idx_product == -1) {
-            printf("%s: %s\n", first_arg, ENO_PRODUCT);
-            return;
-        }
-        int idx_cart = findProductInCart(sys, idx_product);
-        if (idx_cart != -1 && sys->cart[idx_cart].quantity > 0) {
-            puts(EPRODUCT_IN_USE);
-            return;
-        }
         
-        int final_stock = sys->products[idx_product].stock - quantity;
-        if (final_stock < 0) {
-            puts(EINVALID_QTY);
-            return;
-        }
-        sys->products[idx_product].stock = final_stock;
-        printf("%d %s\n", final_stock, sys->products[idx_product].description);
-        if (final_stock == 0)
-            deleteProduct(sys, idx_product);
+        commandDProduct(sys, first_arg, quantity);
     } else {
         int number = atoi(first_arg);
         int idx_invoice = findInvoice(sys, number);
@@ -267,11 +284,8 @@ void commandD(System *sys, char buf[MAXLINE]) {
             printf("%d: %s\n", number, ENO_INVOICE);
             return;
         }
-        printf("%.2lf %d %s\n",
-            sys->invoices[idx_invoice].value,
-            sys->invoices[idx_invoice].nif,
-            sys->invoices[idx_invoice].client_name);
-        deleteInvoice(sys, idx_invoice);
+
+        printAndDeleteInvoice(sys, idx_invoice);
     }
 }
 
