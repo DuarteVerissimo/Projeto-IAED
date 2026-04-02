@@ -145,6 +145,8 @@ void commandF(System *sys, char buf[MAXLINE]) {
                 sys->cart[i].quantity, sys->iva_taxes[sys->products[idx_product].iva - 'A']);
             sys->products[idx_product].sold += sys->cart[i].quantity;
         }
+        //sys->total_revenue += total_price;
+        //sys->total_items_sold += num_items;
         addInvoice(sys, nif, name, total_price, num_items);
         printInvoiceCommandF(sys->invoices[sys->num_invoices - 1]);
         free(name);

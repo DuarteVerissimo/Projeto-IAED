@@ -53,6 +53,8 @@ void commandR(System *sys, char buf[MAXLINE]) {
         }
 
         printf("%d %d %.2lf\n", total_items, sys->next_invoice_number - 1, total_value);
+        //printf("%d %d %.2lf\n", sys->total_items_sold,
+        //sys->next_invoice_number - 1, sys->total_revenue);
         for (int i = 0; i < MAXIVA; i++) {
             if (sys->iva_taxes[i] >= 0) {
                 printf("%c %d%%\n", 'A' + i, sys->iva_taxes[i]);
