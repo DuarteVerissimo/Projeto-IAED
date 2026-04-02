@@ -10,6 +10,7 @@
 int findInvoice(System *sys, int number);
 int verifyNif(char *nif);
 char *extractName(char *buf);
+void setStandardClient(int *nif, char **name);
 int readClient(char buf[MAXLINE], int *nif, char **name);
 void addInvoice(System *sys, int nif, char *name, double value, int num_items);
 void deleteInvoice(System *sys, int idx_invoice);

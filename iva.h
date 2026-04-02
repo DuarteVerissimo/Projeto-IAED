@@ -1,3 +1,9 @@
+/**
+ * Header for IVA tax rate management and billing summary.
+ * @file iva.h
+ * @author ist1117729 (Duarte Veríssimo)
+ */
+
 #ifndef IVA_H
 #define IVA_H
 

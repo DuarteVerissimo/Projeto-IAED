@@ -58,16 +58,19 @@ char *extractName(char *buf) {
     }
 }
 
+void setStandardClient(int *nif, char **name) {
+    *nif = DEFAULT_NIF;
+    *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
+    checkMemory(*name);
+    strcpy(*name, DEFAULT_CLIENT_NAME);
+}
 
 int readClient(char buf[MAXLINE], int *nif, char **name) {
     char first_arg[MAXLINE], sec_arg[MAXLINE];
     int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
 
     if (arg_read <= 0) {
-        *nif = DEFAULT_NIF;
-        *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
-        checkMemory(*name);
-        strcpy(*name, DEFAULT_CLIENT_NAME);
+        setStandardClient(*nif, **name);
         return 1;
     } else {
         if (first_arg[0] == '"' || arg_read == 1) {

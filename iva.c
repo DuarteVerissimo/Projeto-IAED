@@ -1,15 +1,30 @@
+/**
+ * IVA tax rate management and billing summary.
+ * @file iva.c
+ * @author ist1117729 (Duarte Veríssimo)
+ */
+
 #include "types.h"
 #include "products.h"
 #include "cart.h"
 #include "invoices.h"
 #include "iva.h"
 
+/**
+ * Initializes all IVA tax rates to -1 (undefined).
+ * @param iva_taxes Array of IVA taxs rates
+ */
 void initIva(int iva_taxes[MAXIVA]) {
     int i;
     for (i = 'A' - 'A'; i < MAXIVA; i++)
         iva_taxes[i] = - 1;
 }
 
+
+/**
+ * Sets the default IVA tax rates.
+ * @param iva_taxes Array of IVA taxs rates
+ */
 void initDefaultIva(int iva_taxes[MAXIVA]) {
     iva_taxes['A' - 'A'] = 0;
     iva_taxes['B' - 'A'] = 6;
@@ -17,7 +32,7 @@ void initDefaultIva(int iva_taxes[MAXIVA]) {
     iva_taxes['D' - 'A'] = 23;
 }
 
-/** Calculate price with IVA and symmetric rounding
+/** Calculate price with IVA and symmetric rounding to cents.
  * @param price     unit price
  * @param quantity  quantity
  * @param iva_value iva value percentage
@@ -27,6 +42,7 @@ double calculatePrice(double price, int quantity, int iva_value) {
     double cents = price * quantity * (100 + iva_value);
     return (int)(cents + 0.5) / 100.0;
 }
+
 
 void commandR(System *sys, char buf[MAXLINE]) {
     char ean_product[MAXEAN];
@@ -63,6 +79,12 @@ void commandR(System *sys, char buf[MAXLINE]) {
     }
 }
 
+/**
+ * Loads IVA rates from a file if provided, otherwise uses default rates.
+ * @param sys   system state
+ * @param argc  number of command-line arguments
+ * @param argv  command-line argument vector
+ */
 void openIvaFile(System *sys, int argc, char *argv[]) {
     if (argc > 1) {
         FILE *f = fopen(argv[1], "r");
