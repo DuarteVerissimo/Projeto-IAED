@@ -20,7 +20,6 @@ void initIva(int iva_taxes[MAXIVA]) {
         iva_taxes[i] = - 1;
 }
 
-
 /**
  * Sets the default IVA tax rates.
  * @param iva_taxes Array of IVA taxs rates

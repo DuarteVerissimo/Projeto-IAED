@@ -70,25 +70,18 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
     int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
 
     if (arg_read <= 0) {
-        setStandardClient(*nif, **name);
+        setStandardClient(nif, name);
         return 1;
-    } else {
-        if (first_arg[0] == '"' || arg_read == 1) {
-            *nif = DEFAULT_NIF;
-            *name = extractName(buf + 2);
-        } else{
+    } else if (first_arg[0] == '"' || arg_read == 1) {
+        *nif = DEFAULT_NIF;
+        *name = extractName(buf + 2);
+    } else{
             if (!verifyNif(first_arg)) {
                 printf("%s: %s\n", first_arg, EINVALID_NIF);
                 return 0;
             }
             *nif = atoi(first_arg);
-            if (arg_read == 1) {
-                *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
-                checkMemory(*name);
-                strcpy(*name, DEFAULT_CLIENT_NAME);
-            } else
-                *name = extractName(buf + 2 + strlen(first_arg));
-        }
+            *name = extractName(buf + 2 + strlen(first_arg));
     }
     if (*name == NULL) return 0;
     if (strcmp(*name, "error") == 0)
