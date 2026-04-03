@@ -195,6 +195,11 @@ void commandP(System *sys, char buf[MAXLINE]) {
 
     sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity,
         description);
+    int len = strlen(description);
+    while (len > 0 && (description[len - 1] == ' ' || description[len - 1] == '\t' || description[len - 1] == '\r')) {
+        description[len - 1] = '\0';
+        len--;
+    }
 
     if (validateProduct(sys, ean, iva, price, quantity, description)) {
         int idx_product = findProduct(sys, ean);
