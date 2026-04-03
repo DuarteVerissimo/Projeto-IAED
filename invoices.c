@@ -1,8 +1,20 @@
+/**
+ * Invoice management: creation, deletion, listing and client handling.
+ * @file invoices.c
+ * @author ist1117729 (Duarte Veríssimo)
+ */
 #include "invoices.h"
 #include "cart.h"
 #include "iva.h"
 #include "products.h"
 
+
+/**
+ * Finds an invoice by its number using linear search.
+ * @param sys       system state
+ * @param number    invoice number to search for
+ * @return          index in invoices array if found, -1 otherwise
+ */
 int findInvoice(System *sys, int number) {
 	int i;
 	for (i = 0; i < sys->num_invoices; i++) {
@@ -12,6 +24,11 @@ int findInvoice(System *sys, int number) {
 	return -1;
 }
 
+/**
+ * Verifies if a NIF is valid: 9 digits, not starting with zero.
+ * @param nif   NIF string to verify
+ * @return      1 if valid, 0 otherwise
+ */
 int verifyNif(char *nif) {
     int len = strlen(nif), i;
     if (nif[0] == '0') return 0;
@@ -58,6 +75,11 @@ char *extractName(char *buf) {
     }
 }
 
+/**
+ * Sets the default client: NIF 999999999 and name "Cliente final".
+ * @param nif   pointer to store the default NIF
+ * @param name  pointer to store the allocated default name
+ */
 void setStandardClient(int *nif, char **name) {
     *nif = DEFAULT_NIF;
     *name = malloc(strlen(DEFAULT_CLIENT_NAME) + 1);
@@ -93,7 +115,9 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
 void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
     if (sys->num_invoices >= sys->max_invoices) {
         sys->max_invoices *= 2;
-        sys->invoices = realloc(sys->invoices, sizeof(Invoice) * sys->max_invoices);
+        sys->invoices = realloc(sys->invoices,
+            sizeof(Invoice) * sys->max_invoices);
+        checkMemory(sys->invoices);
     }
     sys->invoices[sys->num_invoices].nif = nif;
     sys->invoices[sys->num_invoices].num_items = num_items;
@@ -101,6 +125,7 @@ void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
     sys->next_invoice_number++;
     sys->invoices[sys->num_invoices].value = value;
     sys->invoices[sys->num_invoices].client_name = malloc(strlen(name) + 1);
+    checkMemory(sys->invoices[sys->num_invoices].client_name);
     strcpy(sys->invoices[sys->num_invoices].client_name, name);
     sys->num_invoices++;
 }
@@ -115,6 +140,11 @@ void deleteInvoice(System *sys, int idx_invoice) {
 }
 
 
+/**
+ * Prints invoice summary after checkout, in the format:
+ * num_items value number
+ * @param invoice   invoice to print
+ */
 void printInvoiceCommandF(Invoice invoice) {
     printf("%d %.2lf %d\n",
         invoice.num_items,
@@ -131,7 +161,7 @@ void commandF(System *sys, char buf[MAXLINE]) {
         free(name);
         for (i = 0; i < sys->cart_size; i++)
             sys->products[sys->cart[i].product_index].stock += sys->cart[i].quantity;
-        emptyCart(sys);
+        destroyCart(sys);
     } else if (clientInfo) {
         for (i = 0; i < sys->cart_size; i++) {
             if (sys->cart[i].quantity > 0)
@@ -146,7 +176,7 @@ void commandF(System *sys, char buf[MAXLINE]) {
         addInvoice(sys, nif, name, total_price, num_items);
         printInvoiceCommandF(sys->invoices[sys->num_invoices - 1]);
         free(name);
-        emptyCart(sys);
+        destroyCart(sys);
     }
 }
 
@@ -191,17 +221,19 @@ int partition(System *sys, int start, int end) {
     int i = start - 1, j, comp;
     char *pivot = sys->invoices[end].client_name;
     int pivot_number = sys->invoices[end].number;
+    Invoice aux;
 
     for (j = start; j < end; j++) {
         comp = strcmp(sys->invoices[j].client_name, pivot);
-        if (comp < 0 || (comp == 0 && sys->invoices[j].number < pivot_number)) {
+        if (comp < 0 || 
+                (comp == 0 && sys->invoices[j].number < pivot_number)) {
             i++;
-            Invoice aux = sys->invoices[i];
+            aux = sys->invoices[i];
             sys->invoices[i] = sys->invoices[j];
             sys->invoices[j] = aux;
         }
     }
-    Invoice aux = sys->invoices[i + 1];
+    aux = sys->invoices[i + 1];
     sys->invoices[i + 1] = sys->invoices[end];
     sys->invoices[end] = aux;
     return i + 1;
@@ -223,13 +255,12 @@ void commandC(System *sys, char buf[MAXLINE]) {
 
 void commandDProduct(System *sys, char ean[MAXLINE], int quantity) {
     int idx_product = findProduct(sys, ean);
-    int idx_cart = findProductInCart(sys, idx_product);
 
     if (idx_product == -1) {
         printf("%s: %s\n", ean, ENO_PRODUCT);
         return;
     }
-
+    int idx_cart = findProductInCart(sys, idx_product);
     if (idx_cart != -1 && sys->cart[idx_cart].quantity > 0) {
         puts(EPRODUCT_IN_USE);
         return;
@@ -285,6 +316,10 @@ void commandD(System *sys, char buf[MAXLINE]) {
     }
 }
 
+/**
+ * Frees all dynamically allocated invoice data.
+ * @param sys System state
+ */
 void destroyInvoices(System *sys) {
     int i;
     for (i = 0; i < sys->num_invoices; i++)

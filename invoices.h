@@ -1,3 +1,8 @@
+/**
+ * Invoice management: creation, deletion, listing and client handling.
+ * @file invoices.c
+ * @author ist1117729 (Duarte Veríssimo)
+ */
 #ifndef INVOICES_H
 #define INVOICES_H
 

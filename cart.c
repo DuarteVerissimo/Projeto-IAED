@@ -76,7 +76,7 @@ void listCart(System *sys) {
 }
 
 
-void emptyCart(System *sys) {
+void destroyCart(System *sys) {
     free(sys->cart);
     sys->cart = NULL;
     sys->cart_size = 0;

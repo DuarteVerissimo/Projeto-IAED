@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         switch (buf[0]) {
 			case 'q': 
                 destroyInvoices(&sys);
-                free(sys.cart);    
+                destroyCart(&sys);  
                 return 0;
 			case 'p': commandP(&sys, buf); break;
 			case 'l': commandL(&sys, buf); break;
