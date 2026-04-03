@@ -1,7 +1,13 @@
+/**
+ * Product management: creation, validation, search and listing.
+ * @file products.c
+ * @author ist1117729 (Duarte Veríssimo)
+ */
+
 #ifndef PRODUCTS_H
 #define PRODUCTS_H
 
-#include "types.h" //ver depois
+#include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -10,9 +16,12 @@
 int verifyEan(char ean[MAXEAN]);
 int verifyWildcard(char *pattern, char *ean);
 int findProduct(System *sys, char *ean);
-int validateProduct(System *sys, char *ean, char iva, double price, int quantity, char *description);
-void updateProduct(System *sys, char iva, double price, int quantity, char *description, int idx_cart, int idx_product);
-void createProduct(System *sys,  char *ean, char iva, double price, int quantity, char *description);
+int validateProduct(System *sys, char *ean, char iva, double price,
+	int quantity, char *description);
+void updateProduct(System *sys, char iva, double price, int quantity,
+	char *description, int idx_cart, int idx_product);
+void createProduct(System *sys, char *ean, char iva, double price,
+	int quantity, char *description);
 void commandP(System *sys, char buf[MAXLINE]);
 void printProduct(Product *product, int soldAndInCart);
 void listAllProducts(System *sys);

@@ -1,3 +1,9 @@
+/**
+ * Product management: creation, validation, search and listing.
+ * @file products.c
+ * @author ist1117729 (Duarte Veríssimo)
+ */
+
 #include "types.h"
 #include "products.h"
 #include "cart.h"
@@ -45,13 +51,19 @@ int verifyWildcard(char *pattern, char *ean) {
         return verifyWildcard(pattern + 1, ean + 1);
     
     else if (pattern[0] == '*')
-        return verifyWildcard(pattern + 1, ean) || (ean[0] != '\0' && verifyWildcard(pattern, ean + 1));
+        return verifyWildcard(pattern + 1, ean) ||
+            (ean[0] != '\0' && verifyWildcard(pattern, ean + 1));
     
     else
         return 0;
 }
 
-
+/**
+ * Finds a product by EAN using binary search on the sorted index array.
+ * @param sys   system state
+ * @param ean   EAN code to search for
+ * @return      index in products array if found, -1 otherwise
+ */
 int findProduct(System *sys, char *ean) {
     int low = 0, high = sys->total_products - 1, mid, comp;
     while (low <= high) {
@@ -70,23 +82,24 @@ int findProduct(System *sys, char *ean) {
 
 
 /** Validate product fields before adding to the system.
- * Checks EAN, VAT class, price, quantity and description.
+ * Checks EAN, IVA, price, quantity and description.
  * @param sys           system state
  * @param ean           EAN code to validate
- * @param iva           VAT class to validate
+ * @param iva           IVA class letter
  * @param price         price to validate
  * @param stock         quantity to validate
  * @param description   description to validate
  * @return              1 if valid, 0 otherwise
  */
-int validateProduct(System *sys, char *ean, char iva, double price, int quantity, char *description) {
+int validateProduct(System *sys, char *ean, char iva, double price, 
+        int quantity, char *description) {
     int idx_iva = iva - 'A';
     
     if (!(verifyEan(ean))) {
         puts(EINVALID_EAN);
         return 0;
     }
-    if (!(sys->iva_taxes[idx_iva] >= 0)) {
+    if (idx_iva < 0 || idx_iva >= MAXIVA || sys->iva_taxes[idx_iva] < 0) {
         puts(EINVALID_IVA);
         return 0;
     }
@@ -98,7 +111,8 @@ int validateProduct(System *sys, char *ean, char iva, double price, int quantity
         puts(EINVALID_QTY);
         return 0;
     }
-    if (strlen(description) > 50 || (description[0] >= 'a' && description[0] <= 'z')) {
+    if (strlen(description) > 50 || 
+            (description[0] >= 'a' && description[0] <= 'z')) {
         puts(EINVALID_DESC);
         return 0;
     }
@@ -106,27 +120,48 @@ int validateProduct(System *sys, char *ean, char iva, double price, int quantity
     return 1;
 }
 
-void updateProduct(System *sys, char iva, double price, int quantity, char *description, int idx_cart, int idx_product) {
+/**
+ * Updates an existing product's fields and increments its stock.
+ * Rejects the update if the product is in the cart and the price changed.
+ * @param sys           system state
+ * @param iva           new IVA class letter
+ * @param price         new unit price
+ * @param quantity      quantity to add to current stock
+ * @param description   new product description
+ * @param idx_cart      index in cart (-1 if not present)
+ * @param idx_product   index in products array
+ */
+void updateProduct(System *sys, char iva, double price, int quantity,
+        char *description, int idx_cart, int idx_product) {
     if (idx_cart != -1 && price != sys->products[idx_product].price) {
         puts(EPRODUCT_IN_USE);
         return;
     }
-    
     sys->products[idx_product].stock += quantity;
     sys->products[idx_product].iva = iva;        
     sys->products[idx_product].price = price;
     strcpy(sys->products[idx_product].description, description);
     printf("%d\n", sys->products[idx_product].stock);
-    }
+}
 
-void createProduct(System *sys,  char *ean, char iva, double price, int quantity, char *description) {
+
+/**
+ * Creates a new product and inserts it maintaining EAN sorted order.
+ * @param sys           system state
+ * @param ean           EAN code
+ * @param iva           IVA class letter
+ * @param price         unit price
+ * @param quantity      initial stock
+ * @param description   product description
+ */
+void createProduct(System *sys,  char *ean, char iva, double price,
+        int quantity, char *description) {
     int i = sys->total_products - 1;
 
     if (sys->total_products >= MAXPRODUCTS) {
         puts(EINVALID_PROD);
         return;
     }
-
     strcpy(sys->products[sys->total_products].description, description);
     strcpy(sys->products[sys->total_products].ean, ean);
     sys->products[sys->total_products].iva = iva;
@@ -135,7 +170,8 @@ void createProduct(System *sys,  char *ean, char iva, double price, int quantity
     sys->products[sys->total_products].sold = 0;
     sys->products[sys->total_products].stock = quantity;
 
-    while (i >= 0 && strcmp(ean, sys->products[sys->product_indexes_by_ean[i]].ean) < 0) {
+    while (i >= 0 && 
+            strcmp(ean, sys->products[sys->product_indexes_by_ean[i]].ean) < 0) {
         sys->product_indexes_by_ean[i + 1] = sys->product_indexes_by_ean[i];
         i--;
     }
@@ -157,11 +193,11 @@ void commandP(System *sys, char buf[MAXLINE]) {
     int quantity;
     char description[MAXLINE];
 
-    sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity, description);
+    sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity,
+        description);
 
     if (validateProduct(sys, ean, iva, price, quantity, description)) {
         int idx_product = findProduct(sys, ean);
-        
         if (idx_product != -1) {
             int idx_cart = findProductInCart(sys, idx_product);
             updateProduct(sys, iva, price, quantity, description, idx_cart, idx_product);     
@@ -204,7 +240,10 @@ int getProductSoldAndInCart(System *sys, int idx_product) {
         return sys->products[idx_product].sold;
 }
 
-
+/**
+ * Lists all products with stock > 0, in order of creation.
+ * @param sys   system state
+ */
 void listAllProducts(System *sys) {
     int i, soldAndInCart, found = 0;
     for (i = 0; i < sys->total_products; i++) {
@@ -218,7 +257,11 @@ void listAllProducts(System *sys) {
         puts("*: no such product");
 }
 
-
+/**
+ * Lists all products with stock > 0 whose EAN matches the given pattern.
+ * @param sys       system state
+ * @param pattern   wildcard pattern to match against EAN codes
+ */
 void listProductsByPattern(System *sys, char *pattern) {
     int i, soldAndInCart, found = 0;
     for (i = 0; i < sys->total_products; i++) {
@@ -233,6 +276,13 @@ void listProductsByPattern(System *sys, char *pattern) {
         printf("%s: %s\n", pattern, ENO_PRODUCT);
 }
 
+
+/**
+ * Processes the 'l' command - lists products matching given EAN wildcards.
+ * Lists all available products if no argument or '*' is given.
+ * @param sys   system state
+ * @param buf   input line
+ */
 void commandL(System *sys, char buf[MAXLINE]) {
     char *pattern = strtok(buf + 2, " \n");
 
@@ -246,6 +296,12 @@ void commandL(System *sys, char buf[MAXLINE]) {
     }
 }
 
+/**
+ * Removes a product from the system, updating all index structures.
+ * Also updates cart indices to reflect the removed product's position.
+ * @param sys           system state
+ * @param idx_product   index of the product to remove
+ */
 void deleteProduct(System *sys, int idx_product) {
     int i, idx_by_ean = 0;
     for (i = 0; i < sys->total_products; i++) {
@@ -258,8 +314,8 @@ void deleteProduct(System *sys, int idx_product) {
         if (sys->product_indexes_by_ean[i] > idx_product)
             sys->product_indexes_by_ean[i] -= 1;
     }
-    for (i =idx_by_ean; i < sys->total_products - 1; i++)
-        sys->product_indexes_by_ean[i] = sys->product_indexes_by_ean[i + 1];    
+    for (i = idx_by_ean; i < sys->total_products - 1; i++)
+        sys->product_indexes_by_ean[i] = sys->product_indexes_by_ean[i + 1];
     
     for (i = idx_product; i < sys->total_products - 1; i++)
         sys->products[i] = sys->products[i + 1];
