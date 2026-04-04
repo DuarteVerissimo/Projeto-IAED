@@ -297,7 +297,7 @@ void listProductsByPattern(System *sys, char *pattern) {
 void commandL(System *sys, char buf[MAXLINE]) {
     char *pattern = strtok(buf + 2, " \n");
 
-    if (pattern == NULL || strcmp(pattern, "*") == 0)
+    if (pattern == NULL)
         listAllProducts(sys);
     else {
         while (pattern != NULL) {

@@ -101,7 +101,7 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
         return 0;
     }
 
-    if (quantity > 0 && sys->products[idx_product].stock <= 0) {
+    if (quantity > 0 && sys->products[idx_product].stock - quantity < 0) {
         puts(ENO_STOCK);
         return 0;
     }
@@ -112,31 +112,34 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
 void commandA(System *sys, char buf[MAXLINE]) {
 	int quantity = 1;
 	char product_ean[MAXLINE];
-	int num_read = sscanf(buf + 2, "%d %s", &quantity, product_ean);
+    char arg1[MAXLINE], arg2[MAXLINE];
+	int num_read = sscanf(buf + 2, "%s %s", arg1, arg2);
 
 	if (num_read == 1) {
-		sscanf(buf + 2, "%s", product_ean);
+		strcpy(product_ean, arg1);
 		quantity = 1;
-	}
-	if (num_read >= 1) {
-		if (!validateCartItem(sys, product_ean, quantity))
+	} else if (num_read == 2) {
+        quantity = atoi(arg1);
+        strcpy(product_ean, arg2);
+    } else {
+        listCart(sys);
+        return;
+    }
+	if (!validateCartItem(sys, product_ean, quantity))
+	    return;
+	int idx_product = findProduct(sys, product_ean);
+	int idx_cart = findProductInCart(sys, idx_product);
+	sys->products[idx_product].stock -= quantity;		
+    if (idx_cart != -1) {
+	    sys->cart[idx_cart].quantity += quantity;
+		if (sys->cart[idx_cart].quantity == 0) {
+			printCartItem(sys, idx_cart);
+			removeFromCart(sys, idx_cart);
 			return;
-		int idx_product = findProduct(sys, product_ean);
-		int idx_cart = findProductInCart(sys, idx_product);
-		sys->products[idx_product].stock -= quantity;		
-        if (idx_cart != -1) {
-			sys->cart[idx_cart].quantity += quantity;
-			if (sys->cart[idx_cart].quantity == 0) {
-				printCartItem(sys, idx_cart);
-				removeFromCart(sys, idx_cart);
-				return;
-			}
-		} else {
-			addToCart(sys, idx_product, quantity);
-			idx_cart = sys->cart_size - 1;
 		}
-		printCartItem(sys, idx_cart);
 	} else {
-		listCart(sys);
+		addToCart(sys, idx_product, quantity);
+		idx_cart = sys->cart_size - 1;
 	}
+	printCartItem(sys, idx_cart);
 }
