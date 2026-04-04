@@ -135,6 +135,8 @@ void deleteInvoice(System *sys, int idx_invoice) {
     int i;
     free(sys->invoices[idx_invoice].client_name);
     sys->total_revenue -= sys->invoices[idx_invoice].value;
+    if (sys->total_revenue < 0.001)
+        sys->total_revenue = 0.0;   
     sys->total_items_sold -= sys->invoices[idx_invoice].num_items;
     for(i = idx_invoice; i < sys->num_invoices - 1; i++)
         sys->invoices[i] = sys->invoices[i + 1];

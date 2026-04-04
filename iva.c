@@ -39,7 +39,7 @@ void initDefaultIva(int iva_taxes[MAXIVA]) {
  */
 double calculatePrice(double price, int quantity, int iva_value) {
     double cents = price * quantity * (100 + iva_value);
-    return (int)(cents + 0.5 + 1e-9) / 100.0;
+    return (int)(cents + 0.500001) / 100.0;
 }
 
 
