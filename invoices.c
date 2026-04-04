@@ -302,7 +302,6 @@ void commandD(System *sys, char buf[MAXLINE]) {
             puts(EINVALID_QTY);
             return;
         }
-        
         commandDProduct(sys, first_arg, quantity);
     } else {
         int number = atoi(first_arg);
@@ -311,7 +310,6 @@ void commandD(System *sys, char buf[MAXLINE]) {
             printf("%d: %s\n", number, ENO_INVOICE);
             return;
         }
-
         printAndDeleteInvoice(sys, idx_invoice);
     }
 }

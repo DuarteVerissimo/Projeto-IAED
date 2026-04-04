@@ -111,8 +111,7 @@ int validateProduct(System *sys, char *ean, char iva, double price,
         puts(EINVALID_QTY);
         return 0;
     }
-    if (strlen(description) > 50 || 
-            (description[0] >= 'a' && description[0] <= 'z')) {
+    if (strlen(description) > 50 || !(isupper((unsigned char)description[0]) || (unsigned char)description[0] >= 128)) {
         puts(EINVALID_DESC);
         return 0;
     }
