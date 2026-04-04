@@ -15,7 +15,7 @@
  * @param ean   EAN code to verify
  * @return      1 if valid, 0 otherwise
  */
-int verifyEan(char ean[MAXEAN]) {
+int verifyEan(char ean[MAXLINE]) {
     int i = 0, sum = 0, num = 0, check_digit = 0;
 
     while (ean[i] != '\0' && isdigit(ean[i])) 
@@ -111,7 +111,7 @@ int validateProduct(System *sys, char *ean, char iva, double price,
         puts(EINVALID_QTY);
         return 0;
     }
-    if (strlen(description) > 50 || !(isupper((unsigned char)description[0]) || (unsigned char)description[0] >= 128)) {
+    if (strlen(description) > 50 || !(isupper(description[0]) || (unsigned char)description[0] >= 128)) {
         puts(EINVALID_DESC);
         return 0;
     }

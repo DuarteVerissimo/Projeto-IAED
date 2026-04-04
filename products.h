@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <string.h>
 
-int verifyEan(char ean[MAXEAN]);
+int verifyEan(char ean[MAXLINE]);
 int verifyWildcard(char *pattern, char *ean);
 int findProduct(System *sys, char *ean);
 int validateProduct(System *sys, char *ean, char iva, double price,

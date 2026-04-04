@@ -44,7 +44,7 @@ double calculatePrice(double price, int quantity, int iva_value) {
 
 
 void commandR(System *sys, char buf[MAXLINE]) {
-    char ean_product[MAXEAN];
+    char ean_product[MAXLINE];
     if (sscanf(buf + 2, "%s", ean_product) == 1) {
         if (!verifyEan(ean_product)) {
             puts(EINVALID_EAN);
@@ -57,20 +57,19 @@ void commandR(System *sys, char buf[MAXLINE]) {
         }
         int soldAndInCart;
         soldAndInCart = getProductSoldAndInCart(sys, idx_product);
-        printf ("%d %d %s\n", sys->products[idx_product].stock, soldAndInCart, sys->products[idx_product].description);
+        printf("%d %d %s\n", sys->products[idx_product].stock, soldAndInCart, sys->products[idx_product].description);
     } else {
-        double total_value = 0.0;
-        int total_items = 0, i;
+        /*double total_value = 0.0;
+        int total_items = 0;
 
         for (i = 0; i < sys->num_invoices; i++) {
             total_value += sys->invoices[i].value;
             total_items += sys->invoices[i].num_items;
-        }
+        }*/
 
-        printf("%d %d %.2lf\n", total_items, sys->next_invoice_number - 1, total_value);
-        //printf("%d %d %.2lf\n", sys->total_items_sold,
-        //sys->next_invoice_number - 1, sys->total_revenue);
-        for (i = 0; i < MAXIVA; i++) {
+        //printf("%d %d %.2lf\n", total_items, sys->next_invoice_number - 1, total_value);
+        printf("%d %d %.2lf\n", sys->total_items_sold, sys->next_invoice_number - 1, sys->total_revenue);
+        for (int i = 0; i < MAXIVA; i++) {
             if (sys->iva_taxes[i] >= 0) {
                 printf("%c %d%%\n", 'A' + i, sys->iva_taxes[i]);
             }

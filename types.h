@@ -63,8 +63,8 @@ typedef struct {
     int num_invoices;
     int next_invoice_number;
     int max_invoices;
-    //double total_revenue;
-    //int total_items_sold;
+    double total_revenue;
+    int total_items_sold;
     
     int iva_taxes[MAXIVA];
 } System;

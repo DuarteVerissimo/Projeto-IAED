@@ -134,6 +134,8 @@ void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
 void deleteInvoice(System *sys, int idx_invoice) {
     int i;
     free(sys->invoices[idx_invoice].client_name);
+    sys->total_revenue -= sys->invoices[idx_invoice].value;
+    sys->total_items_sold -= sys->invoices[idx_invoice].num_items;
     for(i = idx_invoice; i < sys->num_invoices - 1; i++)
         sys->invoices[i] = sys->invoices[i + 1];
     sys->num_invoices--;
@@ -171,8 +173,8 @@ void commandF(System *sys, char buf[MAXLINE]) {
                 sys->cart[i].quantity, sys->iva_taxes[sys->products[idx_product].iva - 'A']);
             sys->products[idx_product].sold += sys->cart[i].quantity;
         }
-        //sys->total_revenue += total_price;
-        //sys->total_items_sold += num_items;
+        sys->total_revenue += total_price;
+        sys->total_items_sold += num_items;
         addInvoice(sys, nif, name, total_price, num_items);
         printInvoiceCommandF(sys->invoices[sys->num_invoices - 1]);
         free(name);
