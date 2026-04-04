@@ -33,7 +33,6 @@ typedef struct {
     char iva;
     int stock;
     int sold;
-    int number;
 } Product;
 
 typedef struct {

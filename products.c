@@ -18,7 +18,7 @@
 int verifyEan(char ean[MAXLINE]) {
     int i = 0, sum = 0, num = 0, check_digit = 0;
 
-    while (ean[i] != '\0' && isdigit(ean[i])) 
+    while (ean[i] != '\0' && isdigit(ean[i]))
         i++;
     
     if (!((i == 13 || i == 8) && ean[i] == '\0'))
@@ -26,36 +26,10 @@ int verifyEan(char ean[MAXLINE]) {
     
     for (int j = 0; j < i - 1; j++) {
         num = ean[j] - '0';
-        
-        if (j % 2 == 0)
-            sum += num;
-        else
-            sum += num * 3;
+        sum += num * (j % 2 == 0 ? 1 : 3);
     }
-
     check_digit = (10 - (sum % 10)) % 10;
     return check_digit == ean[i - 1] - '0';
-}
-
-
-/** Verify if a wildcard pattern matches an EAN code
- * @param pattern   wildcard pattern
- * @param ean       EAN code to match against
- * @return          1  if valid, 0 otherwise
- */
-int verifyWildcard(char *pattern, char *ean) {
-    if (pattern[0] == '\0' && ean[0] == '\0')
-        return 1;
-    
-    else if ((pattern[0] == '?' && ean[0] != '\0') || pattern[0] == ean[0])
-        return verifyWildcard(pattern + 1, ean + 1);
-    
-    else if (pattern[0] == '*')
-        return verifyWildcard(pattern + 1, ean) ||
-            (ean[0] != '\0' && verifyWildcard(pattern, ean + 1));
-    
-    else
-        return 0;
 }
 
 /**
@@ -80,6 +54,36 @@ int findProduct(System *sys, char *ean) {
     return -1;
 }
 
+/**
+ * Removes a product from the system, updating all index structures.
+ * Also updates cart indices to reflect the removed product's position.
+ * @param sys           system state
+ * @param idx_product   index of the product to remove
+ */
+void deleteProduct(System *sys, int idx_product) {
+    int i, idx_by_ean = 0;
+    for (i = 0; i < sys->total_products; i++) {
+        if (sys->product_indexes_by_ean[i] == idx_product) {
+            idx_by_ean = i;
+            break;
+        }
+    }
+    for (i = 0; i < sys->total_products; i++) {
+        if (sys->product_indexes_by_ean[i] > idx_product)
+            sys->product_indexes_by_ean[i] -= 1;
+    }
+    for (i = idx_by_ean; i < sys->total_products - 1; i++)
+        sys->product_indexes_by_ean[i] = sys->product_indexes_by_ean[i + 1];
+    
+    for (i = idx_product; i < sys->total_products - 1; i++)
+        sys->products[i] = sys->products[i + 1];
+
+    for (i = 0; i < sys->cart_size; i++) {
+        if (sys->cart[i].product_index > idx_product)
+            sys->cart[i].product_index--;
+    }
+    sys->total_products--;
+}
 
 /** Validate product fields before adding to the system.
  * Checks EAN, IVA, price, quantity and description.
@@ -111,7 +115,8 @@ int validateProduct(System *sys, char *ean, char iva, double price,
         puts(EINVALID_QTY);
         return 0;
     }
-    if (strlen(description) > 50 || !(isupper(description[0]) || (unsigned char)description[0] >= 128)) {
+    if (strlen(description) > 50 || !(isupper(description[0]) ||
+        (unsigned char)description[0] >= 128)) {
         puts(EINVALID_DESC);
         return 0;
     }
@@ -143,7 +148,6 @@ void updateProduct(System *sys, char iva, double price, int quantity,
     printf("%d\n", sys->products[idx_product].stock);
 }
 
-
 /**
  * Creates a new product and inserts it maintaining EAN sorted order.
  * @param sys           system state
@@ -164,7 +168,6 @@ void createProduct(System *sys,  char *ean, char iva, double price,
     strcpy(sys->products[sys->total_products].description, description);
     strcpy(sys->products[sys->total_products].ean, ean);
     sys->products[sys->total_products].iva = iva;
-    sys->products[sys->total_products].number = sys->total_products;
     sys->products[sys->total_products].price = price;
     sys->products[sys->total_products].sold = 0;
     sys->products[sys->total_products].stock = quantity;
@@ -175,36 +178,21 @@ void createProduct(System *sys,  char *ean, char iva, double price,
         i--;
     }
     sys->product_indexes_by_ean[i + 1] = sys->total_products;
-
     printf("%d\n", sys->products[sys->total_products].stock);
     (sys->total_products)++;
 }
-
 
 /** Process the 'p' command - add or update a product.
  * @param sys   system state
  * @param buf   input line
  */
 void commandP(System *sys, char buf[MAXLINE]) {
-    char ean[MAXLINE];
-    char iva;
+    char ean[MAXLINE], iva, description[MAXLINE];
     double price;
     int quantity;
-    char description[MAXLINE];
 
     sscanf(buf + 2, "%s %c %lf %d %[^\n]", ean, &iva, &price, &quantity,
         description);
-    int len = strlen(description);
-    
-    // CUIDADO VER SE ISTO FICA AQUI
-
-    /* Remove the final whitespace from description*/
-    while (len > 0 && (description[len - 1] == ' ' ||
-            description[len - 1] == '\t' ||
-            description[len - 1] == '\r')) {
-        description[len - 1] = '\0';
-        len--;
-    }
 
     if (validateProduct(sys, ean, iva, price, quantity, description)) {
         int idx_product = findProduct(sys, ean);
@@ -215,10 +203,8 @@ void commandP(System *sys, char buf[MAXLINE]) {
         } else {
             createProduct(sys, ean, iva, price, quantity, description);
         }
-
     }
 }
-
 
 /** Print product information in the format:
  * ean iva price soldAndInCart stock description
@@ -235,8 +221,6 @@ void printProduct(Product *product, int soldAndInCart) {
         product->description);
 }
 
-
-
 /** Get the total quantity sold plus quantity in cart for a product.
  * @param sys           system state
  * @param idx_product   index of product in products array
@@ -244,7 +228,6 @@ void printProduct(Product *product, int soldAndInCart) {
  */
 int getProductSoldAndInCart(System *sys, int idx_product) {
     int idx_cart = findProductInCart(sys, idx_product);
-    
     if (idx_cart != -1)
         return  sys->products[idx_product].sold + sys->cart[idx_cart].quantity;
     else 
@@ -268,6 +251,25 @@ void listAllProducts(System *sys) {
         puts("*: no such product");
 }
 
+/** Verify if a wildcard pattern matches an EAN code
+ * @param pattern   wildcard pattern
+ * @param ean       EAN code to match against
+ * @return          1  if valid, 0 otherwise
+ */
+int verifyWildcard(char *pattern, char *ean) {
+    if (pattern[0] == '\0' && ean[0] == '\0')
+        return 1;
+
+    else if ((pattern[0] == '?' && ean[0] != '\0') || pattern[0] == ean[0])
+        return verifyWildcard(pattern + 1, ean + 1);
+    
+    else if (pattern[0] == '*')
+        return verifyWildcard(pattern + 1, ean) ||
+            (ean[0] != '\0' && verifyWildcard(pattern, ean + 1));
+    else
+        return 0;
+}
+
 /**
  * Lists all products with stock > 0 whose EAN matches the given pattern.
  * @param sys       system state
@@ -287,7 +289,6 @@ void listProductsByPattern(System *sys, char *pattern) {
         printf("%s: %s\n", pattern, ENO_PRODUCT);
 }
 
-
 /**
  * Processes the 'l' command - lists products matching given EAN wildcards.
  * Lists all available products if no argument or '*' is given.
@@ -305,36 +306,4 @@ void commandL(System *sys, char buf[MAXLINE]) {
             pattern = strtok(NULL, " \n");
         }
     }
-}
-
-/**
- * Removes a product from the system, updating all index structures.
- * Also updates cart indices to reflect the removed product's position.
- * @param sys           system state
- * @param idx_product   index of the product to remove
- */
-void deleteProduct(System *sys, int idx_product) {
-    int i, idx_by_ean = 0;
-    for (i = 0; i < sys->total_products; i++) {
-        if (sys->product_indexes_by_ean[i] == idx_product) {
-            idx_by_ean = i;
-            break;
-        }
-    }
-    for (i = 0; i < sys->total_products; i++) {
-        if (sys->product_indexes_by_ean[i] > idx_product)
-            sys->product_indexes_by_ean[i] -= 1;
-    }
-    for (i = idx_by_ean; i < sys->total_products - 1; i++)
-        sys->product_indexes_by_ean[i] = sys->product_indexes_by_ean[i + 1];
-    
-    for (i = idx_product; i < sys->total_products - 1; i++)
-        sys->products[i] = sys->products[i + 1];
-
-    for (i = 0; i < sys->cart_size; i++) {
-        if (sys->cart[i].product_index > idx_product)
-            sys->cart[i].product_index--;
-    }
-
-    sys->total_products--;
 }
