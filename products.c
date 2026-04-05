@@ -259,15 +259,12 @@ void listAllProducts(System *sys) {
 int verifyWildcard(char *pattern, char *ean) {
     if (pattern[0] == '\0' && ean[0] == '\0')
         return 1;
-
-    else if ((pattern[0] == '?' && ean[0] != '\0') || pattern[0] == ean[0])
+    if ((pattern[0] == '?' && ean[0] != '\0') || pattern[0] == ean[0])
         return verifyWildcard(pattern + 1, ean + 1);
-    
-    else if (pattern[0] == '*')
+    if (pattern[0] == '*')
         return verifyWildcard(pattern + 1, ean) ||
             (ean[0] != '\0' && verifyWildcard(pattern, ean + 1));
-    else
-        return 0;
+    return 0;
 }
 
 /**
