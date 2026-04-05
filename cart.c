@@ -1,9 +1,20 @@
+/**
+ * Shopping cart management: adding, removing, validating and listing items.
+ * @file cart.c
+ * @author ist1117729 (Duarte Veríssimo)
+ */
+
 #include "types.h"
 #include "products.h"
 #include "cart.h"
 #include "invoices.h"
 #include "iva.h"
 
+/**
+ * Checks if memory allocation was successful.
+ * Exits the program with an error message if it failed.
+ * @param ptr pointer to the allocated memory
+ */
 void checkMemory(void *ptr) {
     if (ptr == NULL) {
         puts(ENO_MEMORY);
@@ -11,11 +22,11 @@ void checkMemory(void *ptr) {
     }
 }
 
-/** Find a product in the cart by its product index
- * @param cart          array of cart items
- * @param cart_size     number of items in cart
- * @param product_idx   product index to search for
- * @return              index in cart if found, -1 otherwise
+/** Find a product in the cart by its product index.
+ * @param cart array of cart items
+ * @param cart_size number of items in cart
+ * @param product_idx product index to search for
+ * @return index in cart if found, -1 otherwise
  */
 int findProductInCart(System *sys, int product_idx) {
     int i;
@@ -26,7 +37,14 @@ int findProductInCart(System *sys, int product_idx) {
     return -1;
 }
 
-
+/**
+ * Adds a quantity of a product to the shopping cart.
+ * If the product is already in the cart, it simply updates the quantity.
+ * Otherwise, it dynamically allocates memory for a new cart item.
+ * @param sys system state
+ * @param idx_product index of the product to be added
+ * @param quantity amount of the product to add
+ */
 void addToCart(System *sys, int idx_product, int quantity) {
     int idx_cart = findProductInCart(sys, idx_product);
 
@@ -34,7 +52,6 @@ void addToCart(System *sys, int idx_product, int quantity) {
         sys->cart[idx_cart].quantity += quantity;
     else {
         sys->cart = realloc(sys->cart, sizeof(CartItem) * (sys->cart_size + 1));
-
         checkMemory(sys->cart);
 
         sys->cart[sys->cart_size].product_index = idx_product;
@@ -44,63 +61,81 @@ void addToCart(System *sys, int idx_product, int quantity) {
     }
 }
 
-
+/**
+ * Removes an item from the shopping cart by shifting subsequent elements.
+ * @param sys system state
+ * @param idx_cart index of the item to remove from the cart
+ */
 void removeFromCart(System *sys, int idx_cart) {
     int j;
+
     for (j = idx_cart; j < sys->cart_size - 1; j++)
         sys->cart[j] = sys->cart[j + 1];
+        
     sys->cart_size--;
 }
 
-
+/**
+ * Prints a shopping cart item in the format:
+ * <iva> <unit_price> <quantity> <total_price_with_iva> <description>
+ * @param sys system state
+ * @param idx_cart index of the item in the cart array
+ */
 void printCartItem(System *sys, int idx_cart) {
     int idx_product = sys->cart[idx_cart].product_index;
-    double total_price = calculatePrice(sys->products[idx_product].price, sys->cart[idx_cart].quantity, sys->iva_taxes[sys->products[idx_product].iva - 'A']);
+    Product *p = &sys->products[idx_product]; 
+    
+    double total_price = calculatePrice(p->price, 
+                                        sys->cart[idx_cart].quantity, 
+                                        sys->iva_taxes[p->iva - 'A']);
     
     printf("%c %.2lf %d %.2lf %s\n",
-        sys->products[idx_product].iva,
-        sys->products[idx_product].price,
-        sys->cart[idx_cart].quantity,
-        total_price,
-        sys->products[idx_product].description);
+           p->iva, 
+           p->price, 
+           sys->cart[idx_cart].quantity, 
+           total_price, 
+           p->description);
 }
 
-
+/**
+ * Lists all items currently in the shopping cart.
+ * Iterates through the sorted product indices to ensure the cart 
+ * is printed in ascending order by EAN.
+ * @param sys system state
+ */
 void listCart(System *sys) {
     int i, idx_cart;
+
     for (i = 0; i < sys->total_products; i++) {
         idx_cart = findProductInCart(sys, sys->product_indexes_by_ean[i]);
+
         if (idx_cart != -1 && sys->cart[idx_cart].quantity > 0)
             printCartItem(sys, idx_cart);
     }
 }
 
-
-void destroyCart(System *sys) {
-    free(sys->cart);
-    sys->cart = NULL;
-    sys->cart_size = 0;
-}
-
-
+/** 
+ * Validates the addition or removal of an item from the cart.
+ * @param sys system state
+ * @param product_ean product EAN code
+ * @param quantity amount of the product to add or remove
+ * @return 1 if valid, 0 otherwise
+ */
 int validateCartItem(System *sys, char *product_ean, int quantity){
     if (!verifyEan(product_ean)) {
         puts(EINVALID_EAN);
         return 0;
     }
-
     int idx_product = findProduct(sys, product_ean);
     if (idx_product == -1) {
         printf("%s: %s\n", product_ean, ENO_PRODUCT);
         return 0;
     }
-
     int idx_cart = findProductInCart(sys, idx_product);
     if (quantity < 0 && (idx_cart == -1 || sys->cart[idx_cart].quantity + quantity < 0)) {
         puts(EINVALID_QTY);
         return 0;
     }
-
     if (quantity > 0 && sys->products[idx_product].stock - quantity < 0) {
         puts(ENO_STOCK);
         return 0;
@@ -108,16 +143,17 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
     return 1;
 }
 
-
+/** Processes the 'a' command to add items to the cart or list them.
+ * @param sys system state
+ * @param buf input line
+ */
 void commandA(System *sys, char buf[MAXLINE]) {
 	int quantity = 1;
-	char product_ean[MAXLINE];
-    char arg1[MAXLINE], arg2[MAXLINE];
+	char product_ean[MAXLINE], arg1[MAXLINE], arg2[MAXLINE];
 	int num_read = sscanf(buf + 2, "%s %s", arg1, arg2);
 
 	if (num_read == 1) {
 		strcpy(product_ean, arg1);
-		quantity = 1;
 	} else if (num_read == 2) {
         quantity = atoi(arg1);
         strcpy(product_ean, arg2);
@@ -125,8 +161,10 @@ void commandA(System *sys, char buf[MAXLINE]) {
         listCart(sys);
         return;
     }
+
 	if (!validateCartItem(sys, product_ean, quantity))
 	    return;
+
 	int idx_product = findProduct(sys, product_ean);
 	int idx_cart = findProductInCart(sys, idx_product);
 	sys->products[idx_product].stock -= quantity;		
@@ -142,4 +180,15 @@ void commandA(System *sys, char buf[MAXLINE]) {
 		idx_cart = sys->cart_size - 1;
 	}
 	printCartItem(sys, idx_cart);
+}
+
+/**
+ * Frees the dynamically allocated memory for the shopping cart.
+ * Resets the cart pointer to NULL and the cart size to 0.
+ * @param sys system state
+ */
+void destroyCart(System *sys) {
+    free(sys->cart);
+    sys->cart = NULL;
+    sys->cart_size = 0;
 }

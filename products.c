@@ -11,8 +11,8 @@
 #include "iva.h"
 
 
-/** Verify if an EAN code is valid
- * @param ean   EAN code to verify
+/** Verify if an EAN code is valid.
+ *  @param ean   EAN code to verify
  * @return      1 if valid, 0 otherwise
  */
 int verifyEan(char ean[MAXLINE]) {
@@ -54,38 +54,8 @@ int findProduct(System *sys, char *ean) {
     return -1;
 }
 
-/**
- * Removes a product from the system, updating all index structures.
- * Also updates cart indices to reflect the removed product's position.
- * @param sys           system state
- * @param idx_product   index of the product to remove
- */
-void deleteProduct(System *sys, int idx_product) {
-    int i, idx_by_ean = 0;
-    for (i = 0; i < sys->total_products; i++) {
-        if (sys->product_indexes_by_ean[i] == idx_product) {
-            idx_by_ean = i;
-            break;
-        }
-    }
-    for (i = 0; i < sys->total_products; i++) {
-        if (sys->product_indexes_by_ean[i] > idx_product)
-            sys->product_indexes_by_ean[i] -= 1;
-    }
-    for (i = idx_by_ean; i < sys->total_products - 1; i++)
-        sys->product_indexes_by_ean[i] = sys->product_indexes_by_ean[i + 1];
-    
-    for (i = idx_product; i < sys->total_products - 1; i++)
-        sys->products[i] = sys->products[i + 1];
-
-    for (i = 0; i < sys->cart_size; i++) {
-        if (sys->cart[i].product_index > idx_product)
-            sys->cart[i].product_index--;
-    }
-    sys->total_products--;
-}
-
-/** Validate product fields before adding to the system.
+/** 
+ * Validate product fields before adding to the system.
  * Checks EAN, IVA, price, quantity and description.
  * @param sys           system state
  * @param ean           EAN code to validate
@@ -182,7 +152,8 @@ void createProduct(System *sys,  char *ean, char iva, double price,
     (sys->total_products)++;
 }
 
-/** Process the 'p' command - add or update a product.
+/** 
+ * Process the 'p' command - add or update a product.
  * @param sys   system state
  * @param buf   input line
  */
@@ -206,8 +177,9 @@ void commandP(System *sys, char buf[MAXLINE]) {
     }
 }
 
-/** Print product information in the format:
- * ean iva price soldAndInCart stock description
+/** 
+ * Prints product information in the format:
+ * <ean> <iva> <price> <sold_and_in_cart> <stock> <description>
  * @param product       pointer to product
  * @param soldAndInCart quantity sold plus quantity in cart
  */
@@ -251,7 +223,7 @@ void listAllProducts(System *sys) {
         puts("*: no such product");
 }
 
-/** Verify if a wildcard pattern matches an EAN code
+/** Verify if a wildcard pattern matches an EAN code.
  * @param pattern   wildcard pattern
  * @param ean       EAN code to match against
  * @return          1  if valid, 0 otherwise
@@ -303,4 +275,35 @@ void commandL(System *sys, char buf[MAXLINE]) {
             pattern = strtok(NULL, " \n");
         }
     }
+}
+
+/**
+ * Removes a product from the system, updating all index structures.
+ * Also updates cart indices to reflect the removed product's position.
+ * @param sys           system state
+ * @param idx_product   index of the product to remove
+ */
+void deleteProduct(System *sys, int idx_product) {
+    int i, idx_by_ean = 0;
+    for (i = 0; i < sys->total_products; i++) {
+        if (sys->product_indexes_by_ean[i] == idx_product) {
+            idx_by_ean = i;
+            break;
+        }
+    }
+    for (i = 0; i < sys->total_products; i++) {
+        if (sys->product_indexes_by_ean[i] > idx_product)
+            sys->product_indexes_by_ean[i] -= 1;
+    }
+    for (i = idx_by_ean; i < sys->total_products - 1; i++)
+        sys->product_indexes_by_ean[i] = sys->product_indexes_by_ean[i + 1];
+    
+    for (i = idx_product; i < sys->total_products - 1; i++)
+        sys->products[i] = sys->products[i + 1];
+
+    for (i = 0; i < sys->cart_size; i++) {
+        if (sys->cart[i].product_index > idx_product)
+            sys->cart[i].product_index--;
+    }
+    sys->total_products--;
 }
