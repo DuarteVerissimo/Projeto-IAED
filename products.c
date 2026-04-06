@@ -67,13 +67,13 @@ int findProduct(System *sys, char *ean) {
  */
 int validateProduct(System *sys, char *ean, char iva, double price, 
         int quantity, char *description) {
-    int idx_iva = iva - 'A';
+    int idx_iva = indexIva(iva);
     
     if (!(verifyEan(ean))) {
         puts(EINVALID_EAN);
         return 0;
     }
-    if (idx_iva < 0 || idx_iva >= MAXIVA || sys->iva_taxes[idx_iva] < 0) {
+    if (idx_iva == -1 || sys->iva_taxes[idx_iva] < 0) {
         puts(EINVALID_IVA);
         return 0;
     }

@@ -7,6 +7,7 @@
 #include "cart.h"
 #include "iva.h"
 #include "products.h"
+#include "iva.h"
 
 
 /**
@@ -132,12 +133,12 @@ int readClient(char buf[MAXLINE], int *nif, char **name) {
         *nif = DEFAULT_NIF;
         *name = extractName(buf + 2);
     } else{
-            if (!verifyNif(first_arg)) {
-                printf("%s: %s\n", first_arg, EINVALID_NIF);
-                return 0;
-            }
-            *nif = atoi(first_arg);
-            *name = extractName(buf + 2 + strlen(first_arg));
+        if (!verifyNif(first_arg)) {
+            printf("%s: %s\n", first_arg, EINVALID_NIF);
+            return 0;
+        }
+        *nif = atoi(first_arg);
+        *name = extractName(buf + 2 + strlen(first_arg));
     }
 
     if (*name == NULL) return 0;
@@ -249,7 +250,7 @@ void printInvoiceCommandF(Invoice invoice) {
  * @param buf input line buffer
  */
 void commandF(System *sys, char buf[MAXLINE]) {
-    int nif, idx_product, i, num_items = 0;
+    int nif, idx_product, idx_iva, i, num_items = 0;
     double total_price = 0.0;
     char *name;
     int clientInfo = readClient(buf, &nif, &name);
@@ -268,9 +269,10 @@ void commandF(System *sys, char buf[MAXLINE]) {
                 num_items += sys->cart[i].quantity;
 
             idx_product = sys->cart[i].product_index;
+            idx_iva = indexIva(sys->products[idx_product].iva);
             total_price += calculatePrice(sys->products[idx_product].price, 
                 sys->cart[i].quantity, 
-                sys->iva_taxes[sys->products[idx_product].iva - 'A']);
+                sys->iva_taxes[idx_iva]);
 
             sys->products[idx_product].sold += sys->cart[i].quantity;
         }

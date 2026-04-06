@@ -83,11 +83,12 @@ void removeFromCart(System *sys, int idx_cart) {
  */
 void printCartItem(System *sys, int idx_cart) {
     int idx_product = sys->cart[idx_cart].product_index;
+    int idx_iva = indexIva(sys->products[idx_product].iva);
     Product *p = &sys->products[idx_product]; 
     
     double total_price = calculatePrice(p->price, 
                                         sys->cart[idx_cart].quantity, 
-                                        sys->iva_taxes[p->iva - 'A']);
+                                        sys->iva_taxes[idx_iva]);
     
     printf("%c %.2lf %d %.2lf %s\n",
            p->iva, 

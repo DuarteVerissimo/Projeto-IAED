@@ -10,13 +10,28 @@
 #include "invoices.h"
 #include "iva.h"
 
+
+/**
+ * Converts an IVA character to its corresponding array index.
+ * @param c IVA class letter
+ * @return index in the iva_taxes array, or -1 if invalid
+ */
+int indexIva(char c) {
+    int idx_iva = c - 'A';
+
+    if (idx_iva < 0 || idx_iva >= MAXIVA)
+        return -1;
+
+    return idx_iva;
+}
+
 /**
  * Initializes all IVA tax rates to -1 (undefined).
  * @param iva_taxes Array of IVA taxs rates
  */
 void initIva(int iva_taxes[MAXIVA]) {
     int i;
-    for (i = 'A' - 'A'; i < MAXIVA; i++)
+    for (i = indexIva('A'); i < MAXIVA; i++)
         iva_taxes[i] = - 1;
 }
 
@@ -25,10 +40,10 @@ void initIva(int iva_taxes[MAXIVA]) {
  * @param iva_taxes Array of IVA taxs rates
  */
 void initDefaultIva(int iva_taxes[MAXIVA]) {
-    iva_taxes['A' - 'A'] = 0;
-    iva_taxes['B' - 'A'] = 6;
-    iva_taxes['C' - 'A'] = 13;
-    iva_taxes['D' - 'A'] = 23;
+    iva_taxes[indexIva('A')] = 0;
+    iva_taxes[indexIva('B')] = 6;
+    iva_taxes[indexIva('C')] = 13;
+    iva_taxes[indexIva('D')] = 23;
 }
 
 /**
@@ -45,7 +60,7 @@ void openIvaFile(System *sys, int argc, char *argv[]) {
             int value_iva;
             char letter_iva;
             while (fscanf(f, " %c %d", &letter_iva, &value_iva) == 2)
-                sys->iva_taxes[letter_iva - 'A'] = value_iva;
+                sys->iva_taxes[indexIva(letter_iva)] = value_iva;
             fclose(f);
         }
     } else

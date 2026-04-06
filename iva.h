@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <string.h>
 
+int indexIva(char c);
 void initIva(int iva_taxes[MAXIVA]);
 void initDefaultIva(int iva_taxes[MAXIVA]);
 void openIvaFile(System *sys, int argc, char *argv[]);
