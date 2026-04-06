@@ -22,9 +22,9 @@ void checkMemory(void *ptr) {
     }
 }
 
-/** Find a product in the cart by its product index.
- * @param cart array of cart items
- * @param cart_size number of items in cart
+/** 
+ * Finds a product in the cart by its product index using linear search.
+ * @param sys system state
  * @param product_idx product index to search for
  * @return index in cart if found, -1 otherwise
  */
@@ -143,21 +143,38 @@ int validateCartItem(System *sys, char *product_ean, int quantity){
     return 1;
 }
 
-/** Processes the 'a' command to add items to the cart or list them.
+/** 
+ * Parses the arguments for the 'a' command.
+ * @param buf input line
+ * @param product_ean pointer to store the extracted EAN code
+ * @param quantity pointer to store the extracted quantity
+ * @return 1 if arguments were read successfully, -1 if empty
+ */
+int readCartArguments(char *buf, char *product_ean, int *quantity) {
+    char arg1[MAXLINE], arg2[MAXLINE];
+	int num_read = sscanf(buf + 2, "%s %s", arg1, arg2);
+
+	if (num_read == 1) {
+		strcpy(product_ean, arg1);
+        return 1;
+	} else if (num_read == 2) {
+        *quantity = atoi(arg1);
+        strcpy(product_ean, arg2);
+        return 1;
+    }
+    return -1;
+}
+
+/** 
+ * Processes the 'a' command to add items to the cart or list them.
  * @param sys system state
  * @param buf input line
  */
 void commandA(System *sys, char buf[MAXLINE]) {
 	int quantity = 1;
-	char product_ean[MAXLINE], arg1[MAXLINE], arg2[MAXLINE];
-	int num_read = sscanf(buf + 2, "%s %s", arg1, arg2);
+    char product_ean[MAXLINE];
 
-	if (num_read == 1) {
-		strcpy(product_ean, arg1);
-	} else if (num_read == 2) {
-        quantity = atoi(arg1);
-        strcpy(product_ean, arg2);
-    } else {
+    if (readCartArguments(buf, product_ean, &quantity) == -1) {
         listCart(sys);
         return;
     }

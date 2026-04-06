@@ -4,7 +4,6 @@
  * @author ist1117729 (Duarte Veríssimo)
  */
 
-
 #ifndef PRODUCTS_H
 #define PRODUCTS_H
 
