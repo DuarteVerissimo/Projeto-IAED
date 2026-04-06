@@ -3,6 +3,7 @@
  * @file invoices.c
  * @author ist1117729 (Duarte Veríssimo)
  */
+
 #include "invoices.h"
 #include "cart.h"
 #include "iva.h"
@@ -73,6 +74,7 @@ char *extractQuotedName(char *quote_start) {
 char *extractSingleWordName(char *buf) {
     char bufcpy[MAXLINE];
     sscanf(buf, "%s", bufcpy);
+
     if (!isValidNameStart((unsigned char)bufcpy[0])) {
         puts(EINVALID_NAME);
         return NULL;
@@ -102,8 +104,8 @@ char *extractName(char *buf) {
 
 /**
  * Sets the default client: NIF 999999999 and name "Cliente final".
- * @param nif   pointer to store the default NIF
- * @param name  pointer to store the allocated default name
+ * @param nif pointer to store the default NIF
+ * @param name pointer to store the allocated default name
  */
 void setStandardClient(int *nif, char **name) {
     *nif = DEFAULT_NIF;
@@ -118,9 +120,9 @@ void setStandardClient(int *nif, char **name) {
  * @param buf input line buffer
  * @param nif pointer to store the client nif
  * @param name pointer to store the allocated client name string
- * @return 1 if successful, 0 if invalid, -1 on specific error
+ * @return 1 if successful, 0 if invalid, -1 on specific error ("error")
  */
-int readClient(char buf[MAXLINE], int *nif, char **name) {
+int readClient(char *buf, int *nif, char **name) {
     char first_arg[MAXLINE], sec_arg[MAXLINE];
     int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
 
@@ -175,8 +177,8 @@ int findInvoice(System *sys, int number) {
  * @param num_items number of items in the invoice
  */
 void addInvoice(System *sys, int nif, char *name, 
-        double value, int num_items) {
-    // Expand the array if it reaches the maximum capacity
+                double value, int num_items) {
+    /* Expand the array if it reaches the maximum capacity */
     if (sys->num_invoices >= sys->max_invoices) {
         sys->max_invoices *= 2;
         sys->invoices = realloc(sys->invoices,
@@ -189,7 +191,7 @@ void addInvoice(System *sys, int nif, char *name,
     sys->invoices[sys->num_invoices].value = value;
     sys->invoices[sys->num_invoices].number = sys->next_invoice_number++;
 
-    // Allocate memory for the client name string
+    /* Allocate memory for the client name string */
     sys->invoices[sys->num_invoices].client_name = malloc(strlen(name) + 1);
     checkMemory(sys->invoices[sys->num_invoices].client_name);
     strcpy(sys->invoices[sys->num_invoices].client_name, name);
@@ -207,17 +209,17 @@ void addInvoice(System *sys, int nif, char *name,
 void deleteInvoice(System *sys, int idx_invoice) {
     int i;
 
-    // Free the dynamically allocated name
+    /* Free the dynamically allocated name */
     free(sys->invoices[idx_invoice].client_name);
 
-    // Update system statistics
+    /* Update system statistics */
     sys->total_revenue -= sys->invoices[idx_invoice].value;
     if (sys->total_revenue < 0.001)
         sys->total_revenue = 0.0;
 
     sys->total_items_sold -= sys->invoices[idx_invoice].num_items;
 
-    // Shift remaining invoices
+    /* Shift remaining invoices */
     for(i = idx_invoice; i < sys->num_invoices - 1; i++)
         sys->invoices[i] = sys->invoices[i + 1];
 
@@ -235,9 +237,9 @@ void deleteInvoice(System *sys, int idx_invoice) {
  */
 void printInvoiceCommandF(Invoice invoice) {
     printf("%d %.2lf %d\n",
-        invoice.num_items,
-        invoice.value,
-        invoice.number);
+           invoice.num_items,
+           invoice.value,
+           invoice.number);
 }
 
 /**
@@ -247,13 +249,13 @@ void printInvoiceCommandF(Invoice invoice) {
  * @param sys system state
  * @param buf input line buffer
  */
-void commandF(System *sys, char buf[MAXLINE]) {
+void commandF(System *sys, char *buf) {
     int nif, idx_product, idx_iva, i, num_items = 0;
     double total_price = 0.0;
     char *name;
     int clientInfo = readClient(buf, &nif, &name);
 
-    // If there was an error cancel invoice and restore stock
+    /* If there was an error cancel invoice and restore stock */
     if (clientInfo == -1) {
         free(name);
         for (i = 0; i < sys->cart_size; i++)
@@ -261,7 +263,7 @@ void commandF(System *sys, char buf[MAXLINE]) {
         
         destroyCart(sys);
     } else if (clientInfo) {
-        // Loop through cart to update totals and sales
+        /* Loop through cart to update totals and sales */
         for (i = 0; i < sys->cart_size; i++) {
             if (sys->cart[i].quantity > 0)
                 num_items += sys->cart[i].quantity;
@@ -277,11 +279,9 @@ void commandF(System *sys, char buf[MAXLINE]) {
         sys->total_revenue += total_price;
         sys->total_items_sold += num_items;
 
-        // Save the new invoice and print its summary
         addInvoice(sys, nif, name, total_price, num_items);
         printInvoiceCommandF(sys->invoices[sys->num_invoices - 1]);
         
-        // Clean up memory and reset the cart
         free(name);
         destroyCart(sys);
     }
@@ -307,7 +307,7 @@ int partition(System *sys, int start, int end) {
     for (j = start; j < end; j++) {
         comp = strcmp(sys->invoices[j].client_name, pivot);
         
-        // Sort by name, then by number if names are equal
+        /* Sort by name, then by number if names are equal */
         if (comp < 0 || 
                 (comp == 0 && sys->invoices[j].number < pivot_number)) {
             i++;
@@ -317,7 +317,7 @@ int partition(System *sys, int start, int end) {
         }
     }
 
-    // Move pivot to its final sorted place
+    /* Move pivot to its final sorted place */
     aux = sys->invoices[i + 1];
     sys->invoices[i + 1] = sys->invoices[end];
     sys->invoices[end] = aux;
@@ -367,6 +367,7 @@ void listClientInvoices(System *sys, char *name) {
             printInvoiceCommandC(sys->invoices[i]);
         }
     }
+
     if (!found)
         printf("%s: %s\n", name, ENO_CLIENT);
 }
@@ -390,15 +391,13 @@ void listAllInvoices(System *sys) {
  * @param sys system state
  * @param buf input line buffer
  */
-void commandC(System *sys, char buf[MAXLINE]) {
+void commandC(System *sys, char *buf) {
     char first_arg[MAXLINE];
     int arg_read = sscanf(buf + 2, "%s", first_arg);
     
-    // List everything if no name is provided
     if (arg_read <= 0) {
         listAllInvoices(sys);
     } else {
-        // Extract name and free it after listing
         char *name = extractName(buf + 2);
         if (name == NULL) return;
 
@@ -466,7 +465,7 @@ void commandDProduct(System *sys, char ean[MAXLINE], int quantity) {
  * @param sys system state
  * @param buf input line buffer
  */
-void commandD(System *sys, char buf[MAXLINE]) {
+void commandD(System *sys, char *buf) {
     char first_arg[MAXLINE], sec_arg[MAXLINE];
     int arg_read = sscanf(buf + 2, "%s %s", first_arg, sec_arg);
 
