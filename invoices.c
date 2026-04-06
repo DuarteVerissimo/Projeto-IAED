@@ -175,7 +175,8 @@ int findInvoice(System *sys, int number) {
  * @param value total value of the invoice
  * @param num_items number of items in the invoice
  */
-void addInvoice(System *sys, int nif, char *name, double value, int num_items) {
+void addInvoice(System *sys, int nif, char *name, 
+        double value, int num_items) {
     // Expand the array if it reaches the maximum capacity
     if (sys->num_invoices >= sys->max_invoices) {
         sys->max_invoices *= 2;
@@ -258,6 +259,7 @@ void commandF(System *sys, char buf[MAXLINE]) {
         free(name);
         for (i = 0; i < sys->cart_size; i++)
             sys->products[sys->cart[i].product_index].stock += sys->cart[i].quantity;
+        
         destroyCart(sys);
     } else if (clientInfo) {
         // Loop through cart to update totals and sales

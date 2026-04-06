@@ -31,49 +31,11 @@ void initDefaultIva(int iva_taxes[MAXIVA]) {
     iva_taxes['D' - 'A'] = 23;
 }
 
-/** Calculate price with IVA and symmetric rounding to cents.
- * @param price     unit price
- * @param quantity  quantity
- * @param iva_value iva value percentage
- * @return          total price with iva rounded to cents
- */
-double calculatePrice(double price, int quantity, int iva_value) {
-    double cents = price * quantity * (100 + iva_value);
-    return (int)(cents + 0.500001) / 100.0;
-}
-
-
-void commandR(System *sys, char buf[MAXLINE]) {
-    char ean_product[MAXLINE];
-    if (sscanf(buf + 2, "%s", ean_product) == 1) {
-        if (!verifyEan(ean_product)) {
-            puts(EINVALID_EAN);
-            return;
-        }
-        int idx_product = findProduct(sys, ean_product);
-        if (idx_product == -1) {
-            printf("%s: %s\n", ean_product, ENO_PRODUCT);
-            return;
-        }
-        int soldAndInCart;
-        soldAndInCart = getProductSoldAndInCart(sys, idx_product);
-        printf("%d %d %s\n", sys->products[idx_product].stock, soldAndInCart, sys->products[idx_product].description);
-    } else {
-        int i;
-        printf("%d %d %.2lf\n", sys->total_items_sold, sys->next_invoice_number - 1, sys->total_revenue);
-        for (i = 0; i < MAXIVA; i++) {
-            if (sys->iva_taxes[i] >= 0) {
-                printf("%c %d%%\n", 'A' + i, sys->iva_taxes[i]);
-            }
-        }
-    }
-}
-
 /**
  * Loads IVA rates from a file if provided, otherwise uses default rates.
- * @param sys   system state
- * @param argc  number of command-line arguments
- * @param argv  command-line argument vector
+ * @param sys system state
+ * @param argc number of command-line arguments
+ * @param argv command-line argument vector
  */
 void openIvaFile(System *sys, int argc, char *argv[]) {
     if (argc > 1) {
@@ -88,4 +50,59 @@ void openIvaFile(System *sys, int argc, char *argv[]) {
         }
     } else
         initDefaultIva(sys->iva_taxes);
+}
+
+/** Calculate price with IVA and symmetric rounding to cents.
+ * @param price unit price
+ * @param quantity quantity
+ * @param iva_value iva value percentage
+ * @return total price with iva rounded to cents
+ */
+double calculatePrice(double price, int quantity, int iva_value) {
+    double cents = price * quantity * (100 + iva_value);
+    return (int)(cents + 0.500001) / 100.0;
+}
+
+/**
+ * Processes the 'r' command to show product or system reports.
+ * If an EAN is provided, shows stock, sales, and description.
+ * Otherwise, displays global system totals and tax rates.
+ * @param sys system state
+ * @param buf input line buffer
+ */
+void commandR(System *sys, char buf[MAXLINE]) {
+    char ean_product[MAXLINE];
+
+    if (sscanf(buf + 2, "%s", ean_product) == 1) {
+        if (!verifyEan(ean_product)) {
+            puts(EINVALID_EAN);
+            return;
+        }
+
+        int idx_product = findProduct(sys, ean_product);
+        if (idx_product == -1) {
+            printf("%s: %s\n", ean_product, ENO_PRODUCT);
+            return;
+        }
+
+        int soldAndInCart = getProductSoldAndInCart(sys, idx_product);
+        printf("%d %d %s\n", 
+                sys->products[idx_product].stock,
+                soldAndInCart,
+                sys->products[idx_product].description);
+
+    } else {
+        int i;
+
+        printf("%d %d %.2lf\n",
+                sys->total_items_sold,
+                sys->next_invoice_number - 1,
+                sys->total_revenue);
+
+        for (i = 0; i < MAXIVA; i++) {
+            if (sys->iva_taxes[i] >= 0) {
+                printf("%c %d%%\n", 'A' + i, sys->iva_taxes[i]);
+            }
+        }
+    }
 }

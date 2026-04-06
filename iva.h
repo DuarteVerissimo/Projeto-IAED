@@ -15,8 +15,9 @@
 
 void initIva(int iva_taxes[MAXIVA]);
 void initDefaultIva(int iva_taxes[MAXIVA]);
+void openIvaFile(System *sys, int argc, char *argv[]);
+
 double calculatePrice(double price, int quantity, int iva_value);
 void commandR(System *sys, char buf[MAXLINE]);
-void openIvaFile(System *sys, int argc, char *argv[]);
 
 #endif
