@@ -17,7 +17,7 @@ void checkMemory(void *ptr);
 
 int findProductInCart(System *sys, int product_idx);
 
-void addToCart(System *sys, int idx_product, int quantity);
+int addToCart(System *sys, int idx_product, int quantity)
 void removeFromCart(System *sys, int idx_cart);
 void printCartItem(System *sys, int idx_cart);
 void listCart(System *sys);

@@ -29,35 +29,41 @@ void checkMemory(void *ptr) {
  */
 int findProductInCart(System *sys, int product_idx) {
     int i;
+    
     for (i = 0; i < sys->cart_size; i++) {
         if (sys->cart[i].product_index == product_idx)
             return i;
     }
+    
     return -1;
 }
 
 /**
  * Adds a quantity of a product to the shopping cart.
- * If the product is already in the cart, it simply updates the quantity.
+ * If the product is already in the cart, it updates the quantity.
  * Otherwise, it dynamically allocates memory for a new cart item.
  * @param sys system state
  * @param idx_product index of the product to be added
  * @param quantity amount of the product to add
+ * @return the index of the item in the cart array
  */
-void addToCart(System *sys, int idx_product, int quantity) {
+int addToCart(System *sys, int idx_product, int quantity) {
     int idx_cart = findProductInCart(sys, idx_product);
 
-    if (idx_cart != -1)
+    if (idx_cart != -1) {
         sys->cart[idx_cart].quantity += quantity;
-    else {
-        sys->cart = realloc(sys->cart, sizeof(CartItem) * (sys->cart_size + 1));
-        checkMemory(sys->cart);
-
-        sys->cart[sys->cart_size].product_index = idx_product;
-        sys->cart[sys->cart_size].quantity = quantity;
-        strcpy(sys->cart[sys->cart_size].ean, sys->products[idx_product].ean);
-        sys->cart_size++;
+        return idx_cart;
     }
+
+    sys->cart = realloc(sys->cart, sizeof(CartItem) * (sys->cart_size + 1));
+    checkMemory(sys->cart);
+
+    sys->cart[sys->cart_size].product_index = idx_product;
+    sys->cart[sys->cart_size].quantity = quantity;
+    strcpy(sys->cart[sys->cart_size].ean, sys->products[idx_product].ean);
+
+    sys->cart_size++;
+    return sys->cart_size - 1;
 }
 
 /**
@@ -99,8 +105,7 @@ void printCartItem(System *sys, int idx_cart) {
 
 /**
  * Lists all items currently in the shopping cart.
- * Iterates through the sorted product indices to ensure the cart 
- * is printed in ascending order by EAN.
+ * Prints in ascending order by EAN by iterating through the sorted index array.
  * @param sys system state
  */
 void listCart(System *sys) {
@@ -121,25 +126,32 @@ void listCart(System *sys) {
  * @param quantity amount of the product to add or remove
  * @return 1 if valid, 0 otherwise
  */
-int validateCartItem(System *sys, char *product_ean, int quantity){
+int validateCartItem(System *sys, char *product_ean, int quantity) {
+    int idx_product, idx_cart;
+
     if (!verifyEan(product_ean)) {
         puts(EINVALID_EAN);
         return 0;
     }
-    int idx_product = findProduct(sys, product_ean);
+    
+    idx_product = findProduct(sys, product_ean);
     if (idx_product == -1) {
         printf("%s: %s\n", product_ean, ENO_PRODUCT);
         return 0;
     }
-    int idx_cart = findProductInCart(sys, idx_product);
-    if (quantity < 0 && (idx_cart == -1 || sys->cart[idx_cart].quantity + quantity < 0)) {
+    
+    idx_cart = findProductInCart(sys, idx_product);
+    if (quantity < 0 && (idx_cart == -1 || 
+        sys->cart[idx_cart].quantity + quantity < 0)) {
         puts(EINVALID_QTY);
         return 0;
     }
+    
     if (quantity > 0 && sys->products[idx_product].stock - quantity < 0) {
         puts(ENO_STOCK);
         return 0;
     }
+    
     return 1;
 }
 
@@ -162,6 +174,7 @@ int readCartArguments(char *buf, char *product_ean, int *quantity) {
         strcpy(product_ean, arg2);
         return 1;
     }
+
     return -1;
 }
 
@@ -171,7 +184,7 @@ int readCartArguments(char *buf, char *product_ean, int *quantity) {
  * @param buf input line
  */
 void commandA(System *sys, char buf[MAXLINE]) {
-	int quantity = 1;
+	int quantity = 1, idx_product, idx_cart;
     char product_ean[MAXLINE];
 
     if (readCartArguments(buf, product_ean, &quantity) == -1) {
@@ -182,21 +195,18 @@ void commandA(System *sys, char buf[MAXLINE]) {
 	if (!validateCartItem(sys, product_ean, quantity))
 	    return;
 
-	int idx_product = findProduct(sys, product_ean);
-	int idx_cart = findProductInCart(sys, idx_product);
-	sys->products[idx_product].stock -= quantity;		
-    if (idx_cart != -1) {
-	    sys->cart[idx_cart].quantity += quantity;
-		if (sys->cart[idx_cart].quantity == 0) {
-			printCartItem(sys, idx_cart);
-			removeFromCart(sys, idx_cart);
-			return;
-		}
-	} else {
-		addToCart(sys, idx_product, quantity);
-		idx_cart = sys->cart_size - 1;
-	}
+	idx_product = findProduct(sys, product_ean);
+
+    /* Update main product stock */
+    sys->products[idx_product].stock -= quantity;
+
+	idx_cart = addToCart(sys, idx_product, quantity);
 	printCartItem(sys, idx_cart);
+
+    /* If quantity dropped to 0, remove the item entirely */
+    if (sys->cart[idx_cart].quantity == 0) {
+        removeFromCart(sys, idx_cart);
+    }
 }
 
 /**
