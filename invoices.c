@@ -7,8 +7,6 @@
 #include "cart.h"
 #include "iva.h"
 #include "products.h"
-#include "iva.h"
-
 
 /**
  * Verifies if a NIF is valid: 9 digits, not starting with zero.

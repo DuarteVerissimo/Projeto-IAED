@@ -4,7 +4,6 @@
  * @author ist1117729 (Duarte Veríssimo)
  */
 
-#include "types.h"
 #include "products.h"
 #include "cart.h"
 #include "invoices.h"
