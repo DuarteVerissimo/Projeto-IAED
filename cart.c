@@ -183,7 +183,7 @@ int readCartArguments(char *buf, char *product_ean, int *quantity) {
  * @param sys system state
  * @param buf input line
  */
-void commandA(System *sys, char buf[MAXLINE]) {
+void commandA(System *sys, char *buf) {
 	int quantity = 1, idx_product, idx_cart;
     char product_ean[MAXLINE];
 

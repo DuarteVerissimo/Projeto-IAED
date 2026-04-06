@@ -15,7 +15,7 @@
 
 #define NIF_LENGTH 9        /**< exact length of a nif */
 #define DEFAULT_NIF 999999999       /**< default client nif */
-#define DEFAULT_CLIENT_NAME "Cliente final"         /**< default client name */
+#define DEFAULT_CLIENT_NAME "Cliente final"        /**< default client name */
 
 #define EINVALID_EAN "invalid ean"      /**< invalid ean error */
 #define EINVALID_IVA "invalid iva"      /**< invalid iva error */
@@ -75,7 +75,7 @@ typedef struct {
     double total_revenue;        /**< total billed value */
     int total_items_sold;       /**< total items purchased */
     
-    int iva_taxes[MAXIVA];      /**< array of IVA percentages mapped by letter */
+    int iva_taxes[MAXIVA];   /**< array of IVA percentages mapped by letter */
 } System;
 
 #endif

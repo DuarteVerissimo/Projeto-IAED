@@ -9,7 +9,6 @@
 #include "invoices.h"
 #include "iva.h"
 
-
 /**
  * Converts an IVA character to its corresponding array index.
  * @param c IVA class letter
@@ -26,19 +25,19 @@ int indexIva(char c) {
 
 /**
  * Initializes all IVA tax rates to -1 (undefined).
- * @param iva_taxes Array of IVA taxs rates
+ * @param iva_taxes array of IVA tax rates
  */
-void initIva(int iva_taxes[MAXIVA]) {
+void initIva(int *iva_taxes) {
     int i;
     for (i = indexIva('A'); i < MAXIVA; i++)
-        iva_taxes[i] = - 1;
+        iva_taxes[i] = -1;
 }
 
 /**
  * Sets the default IVA tax rates.
- * @param iva_taxes Array of IVA taxs rates
+ * @param iva_taxes array of IVA tax rates
  */
-void initDefaultIva(int iva_taxes[MAXIVA]) {
+void initDefaultIva(int *iva_taxes) {
     iva_taxes[indexIva('A')] = 0;
     iva_taxes[indexIva('B')] = 6;
     iva_taxes[indexIva('C')] = 13;
@@ -51,7 +50,7 @@ void initDefaultIva(int iva_taxes[MAXIVA]) {
  * @param argc number of command-line arguments
  * @param argv command-line argument vector
  */
-void openIvaFile(System *sys, int argc, char *argv[]) {
+void openIvaFile(System *sys, int argc, char **argv) {
     if (argc > 1) {
         FILE *f = fopen(argv[1], "r");
 
@@ -62,11 +61,13 @@ void openIvaFile(System *sys, int argc, char *argv[]) {
                 sys->iva_taxes[indexIva(letter_iva)] = value_iva;
             fclose(f);
         }
-    } else
+    } else {
         initDefaultIva(sys->iva_taxes);
+    }
 }
 
-/** Calculate price with IVA and symmetric rounding to cents.
+/**
+ * Calculates price with IVA and applies symmetric rounding to cents.
  * @param price unit price
  * @param quantity quantity
  * @param iva_value iva value percentage
@@ -84,7 +85,7 @@ double calculatePrice(double price, int quantity, int iva_value) {
  * @param sys system state
  * @param buf input line buffer
  */
-void commandR(System *sys, char buf[MAXLINE]) {
+void commandR(System *sys, char *buf) {
     char ean_product[MAXLINE];
 
     if (sscanf(buf + 2, "%s", ean_product) == 1) {
@@ -101,17 +102,17 @@ void commandR(System *sys, char buf[MAXLINE]) {
 
         int soldAndInCart = getProductSoldAndInCart(sys, idx_product);
         printf("%d %d %s\n", 
-                sys->products[idx_product].stock,
-                soldAndInCart,
-                sys->products[idx_product].description);
+               sys->products[idx_product].stock,
+               soldAndInCart,
+               sys->products[idx_product].description);
 
     } else {
         int i;
 
         printf("%d %d %.2lf\n",
-                sys->total_items_sold,
-                sys->next_invoice_number - 1,
-                sys->total_revenue);
+               sys->total_items_sold,
+               sys->next_invoice_number - 1,
+               sys->total_revenue);
 
         for (i = 0; i < MAXIVA; i++) {
             if (sys->iva_taxes[i] >= 0) {
