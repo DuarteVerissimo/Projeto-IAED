@@ -55,6 +55,7 @@ int addToCart(System *sys, int idx_product, int quantity) {
         return idx_cart;
     }
 
+    /* Expand the array to add a new item */
     sys->cart = realloc(sys->cart, sizeof(CartItem) * (sys->cart_size + 1));
     checkMemory(sys->cart);
 

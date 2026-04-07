@@ -57,6 +57,8 @@ char *extractQuotedName(char *quote_start) {
     }
  
     int len_name = quote_end - quote_start - 1;
+
+    /* Allocate memory for the name */
     char *name = malloc(len_name + 1);
     checkMemory(name);
 
@@ -81,8 +83,11 @@ char *extractSingleWordName(char *buf) {
     }
     
     int len_name = strlen(bufcpy);
+
+    /* Allocate memory for the name */
     char *name = malloc(len_name + 1);
     checkMemory(name);
+
     strcpy(name, bufcpy);
     return name;
 }
@@ -270,9 +275,10 @@ void commandF(System *sys, char *buf) {
 
             idx_product = sys->cart[i].product_index;
             idx_iva = indexIva(sys->products[idx_product].iva);
+
             total_price += calculatePrice(sys->products[idx_product].price, 
-                sys->cart[i].quantity, 
-                sys->iva_taxes[idx_iva]);
+                                          sys->cart[i].quantity, 
+                                          sys->iva_taxes[idx_iva]);
 
             sys->products[idx_product].sold += sys->cart[i].quantity;
         }
